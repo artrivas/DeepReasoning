@@ -188,6 +188,8 @@ RAW_SFT_PATH = DATA_DIR / "sft_reasoning_2k.jsonl"
 CLEAN_SFT_PATH = DATA_DIR / "sft_reasoning_2k_clean.jsonl"
 
 MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.1-flash-lite")
+GEMINI_SLEEP_SECONDS = float(os.environ.get("GEMINI_SLEEP_SECONDS", "8"))
 MAX_SEQ_LENGTH = 1024
 SEED = 42
 EVAL_CASES = 50
@@ -200,6 +202,8 @@ print("RAW_SFT_PATH:", RAW_SFT_PATH)
 print("CLEAN_SFT_PATH:", CLEAN_SFT_PATH)
 print("ADAPTER_DIR:", ADAPTER_DIR)
 print("RESULTS_DIR:", RESULTS_DIR)
+print("GEMINI_MODEL:", GEMINI_MODEL)
+print("GEMINI_SLEEP_SECONDS:", GEMINI_SLEEP_SECONDS)
 print("CUDA available:", torch.cuda.is_available())
 if torch.cuda.is_available():
     print("GPU:", torch.cuda.get_device_name(0))
@@ -349,7 +353,13 @@ def build_gemini_client(required: bool = True):
     return genai.Client(api_key=api_key)
 
 
-def ask_teacher(question: str, model_name: str = "gemini-2.5-flash", temperature: float = 0.7, max_retries: int = 5) -> str:
+def gemini_sleep():
+    # Conservative pacing for free-tier API keys. Tune GEMINI_SLEEP_SECONDS if AI Studio shows a higher active limit.
+    if GEMINI_SLEEP_SECONDS > 0:
+        time.sleep(GEMINI_SLEEP_SECONDS)
+
+
+def ask_teacher(question: str, model_name: str = GEMINI_MODEL, temperature: float = 0.7, max_retries: int = 5) -> str:
     from google.genai import types
     client = build_gemini_client(required=True)
     cfg = types.GenerateContentConfig(system_instruction=SYSTEM_INSTRUCTION, temperature=temperature)
@@ -364,7 +374,7 @@ def ask_teacher(question: str, model_name: str = "gemini-2.5-flash", temperature
     raise RuntimeError("Teacher generation failed after retries.")
 
 
-def generate_distilled_rows(dataset, output_path: Path, target_kept: int = 100, sleep: float = 2.0) -> list[dict]:
+def generate_distilled_rows(dataset, output_path: Path, target_kept: int = 100, sleep: float = GEMINI_SLEEP_SECONDS) -> list[dict]:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     done = set()
     if output_path.exists():
@@ -1011,7 +1021,7 @@ The judge compares base and fine-tuned outputs without knowing which is which. G
         ),
         code(
             """
-JUDGE_MODEL = "gemini-2.5-flash"
+JUDGE_MODEL = GEMINI_MODEL
 
 PAIRWISE_JUDGE_PROMPT = '''You are judging two anonymous model answers to a GSM8K math problem.
 You must return JSON only, with no markdown or extra text.
@@ -1106,6 +1116,7 @@ def run_pairwise_judge(base_records: list[dict], ft_records: list[dict], cases: 
 
         try:
             result = judge_pair(client, case, answer_a, answer_b)
+            gemini_sleep()
             result["mapping"] = mapping
             result["ft_is_a"] = ft_is_a
             judged.append(result)
