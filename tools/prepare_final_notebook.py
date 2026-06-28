@@ -131,6 +131,7 @@ import gc
 import json
 import os
 import random
+import shutil
 import re
 import time
 from collections import Counter, defaultdict
@@ -179,9 +180,11 @@ PROJECT_DIR = detect_project_dir()
 DATA_DIR = PROJECT_DIR
 OUT_DIR = PROJECT_DIR / "outputs"
 ADAPTER_DIR = OUT_DIR / "qwen-reasoning-lora-final"
+CHECKPOINT_DIR = OUT_DIR / "qwen-reasoning-lora-checkpoints"
 RESULTS_DIR = OUT_DIR / "results"
+BACKUP_DIR = PROJECT_DIR / "model_backups"
 
-for path in (OUT_DIR, ADAPTER_DIR, RESULTS_DIR):
+for path in (OUT_DIR, ADAPTER_DIR, CHECKPOINT_DIR, RESULTS_DIR, BACKUP_DIR):
     path.mkdir(parents=True, exist_ok=True)
 
 RAW_SFT_PATH = DATA_DIR / "sft_reasoning_2k.jsonl"
@@ -201,12 +204,35 @@ print("PROJECT_DIR:", PROJECT_DIR)
 print("RAW_SFT_PATH:", RAW_SFT_PATH)
 print("CLEAN_SFT_PATH:", CLEAN_SFT_PATH)
 print("ADAPTER_DIR:", ADAPTER_DIR)
+print("CHECKPOINT_DIR:", CHECKPOINT_DIR)
 print("RESULTS_DIR:", RESULTS_DIR)
+print("BACKUP_DIR:", BACKUP_DIR)
 print("GEMINI_MODEL:", GEMINI_MODEL)
 print("GEMINI_SLEEP_SECONDS:", GEMINI_SLEEP_SECONDS)
 print("CUDA available:", torch.cuda.is_available())
 if torch.cuda.is_available():
     print("GPU:", torch.cuda.get_device_name(0))
+
+
+def directory_has_files(path: Path) -> bool:
+    return path.exists() and any(path.iterdir())
+
+
+def restore_zip_if_missing(target_dir: Path, backup_zip: Path) -> bool:
+    if directory_has_files(target_dir):
+        return False
+    if backup_zip.exists():
+        target_dir.mkdir(parents=True, exist_ok=True)
+        shutil.unpack_archive(str(backup_zip), str(target_dir))
+        print(f"Restored {target_dir} from {backup_zip}")
+        return True
+    return False
+
+
+RESTORE_FROM_BACKUP = True
+if RESTORE_FROM_BACKUP:
+    restore_zip_if_missing(ADAPTER_DIR, BACKUP_DIR / "adapter-latest.zip")
+    restore_zip_if_missing(CHECKPOINT_DIR, BACKUP_DIR / "checkpoints-latest.zip")
 """
         ),
         code(
@@ -526,6 +552,7 @@ from transformers import (
     TrainingArguments,
 )
 from peft import LoraConfig, PeftModel, get_peft_model, prepare_model_for_kbit_training
+from transformers.trainer_utils import get_last_checkpoint
 
 
 rows = load_jsonl(CLEAN_SFT_PATH)
@@ -631,7 +658,7 @@ print(tokenizer.decode(trained)[:2000])
 collator = DataCollatorForSeq2Seq(tokenizer, padding=True, label_pad_token_id=-100)
 
 training_args = TrainingArguments(
-    output_dir=str(OUT_DIR / "qwen-reasoning-lora-checkpoints"),
+    output_dir=str(CHECKPOINT_DIR),
     per_device_train_batch_size=1,
     gradient_accumulation_steps=8,
     num_train_epochs=2,
@@ -644,9 +671,11 @@ training_args = TrainingArguments(
     gradient_checkpointing=True,
     gradient_checkpointing_kwargs={"use_reentrant": False},
     logging_steps=10,
-    eval_strategy="epoch",
-    save_strategy="epoch",
-    save_total_limit=2,
+    eval_strategy="steps",
+    eval_steps=50,
+    save_strategy="steps",
+    save_steps=50,
+    save_total_limit=3,
     report_to="none",
 )
 
@@ -658,7 +687,14 @@ trainer = Trainer(
     data_collator=collator,
 )
 
-train_output = trainer.train()
+RESUME_TRAINING = True
+last_checkpoint = get_last_checkpoint(str(CHECKPOINT_DIR)) if CHECKPOINT_DIR.exists() else None
+print("Last checkpoint:", last_checkpoint)
+
+if RESUME_TRAINING and last_checkpoint:
+    train_output = trainer.train(resume_from_checkpoint=last_checkpoint)
+else:
+    train_output = trainer.train()
 print(train_output)
 """
         ),
@@ -690,6 +726,22 @@ plt.show()
 trainer.model.save_pretrained(ADAPTER_DIR)
 tokenizer.save_pretrained(ADAPTER_DIR)
 print("Saved LoRA adapters to:", ADAPTER_DIR)
+
+BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+timestamp = time.strftime("%Y%m%d-%H%M%S")
+
+adapter_archive_base = BACKUP_DIR / f"adapter-{timestamp}"
+adapter_archive = shutil.make_archive(str(adapter_archive_base), "zip", root_dir=ADAPTER_DIR)
+shutil.copy2(adapter_archive, BACKUP_DIR / "adapter-latest.zip")
+print("Adapter backup:", adapter_archive)
+print("Adapter latest:", BACKUP_DIR / "adapter-latest.zip")
+
+if CHECKPOINT_DIR.exists() and any(CHECKPOINT_DIR.iterdir()):
+    checkpoint_archive_base = BACKUP_DIR / f"checkpoints-{timestamp}"
+    checkpoint_archive = shutil.make_archive(str(checkpoint_archive_base), "zip", root_dir=CHECKPOINT_DIR)
+    shutil.copy2(checkpoint_archive, BACKUP_DIR / "checkpoints-latest.zip")
+    print("Checkpoint backup:", checkpoint_archive)
+    print("Checkpoint latest:", BACKUP_DIR / "checkpoints-latest.zip")
 """
         ),
         md(

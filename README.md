@@ -210,3 +210,65 @@ os.environ["GEMINI_SLEEP_SECONDS"] = "8"
 - The included 1979-row clean dataset avoids regenerating teacher traces, so no distillation API cost is needed for the final run.
 - The judge is the main Gemini consumer: about 50 calls plus occasional repair calls.
 - Keep `RUN_BASE_SC = False` unless you have extra GPU time; base self-consistency is optional and can add 600 more sampled paths for N=5 and N=7.
+
+## Avoiding Retraining: Checkpoints, Backups, And Resume
+
+The notebook now has two layers of protection:
+
+1. Trainer checkpoints for resuming interrupted training.
+2. Zip backups of the final adapter and checkpoint folder.
+
+Persistent paths:
+
+- Checkpoints: `outputs/qwen-reasoning-lora-checkpoints/`
+- Final adapter: `outputs/qwen-reasoning-lora-final/`
+- Backups: `model_backups/`
+- Latest adapter backup: `model_backups/adapter-latest.zip`
+- Latest checkpoint backup: `model_backups/checkpoints-latest.zip`
+
+### Resume Training
+
+The training cell now does:
+
+```python
+last_checkpoint = get_last_checkpoint(str(CHECKPOINT_DIR))
+trainer.train(resume_from_checkpoint=last_checkpoint)
+```
+
+if a checkpoint exists. This means if training stops halfway, rerunning the training cell should continue from the latest checkpoint instead of starting over.
+
+### Restore After Switching GPU
+
+When the notebook starts, it tries to restore from:
+
+```text
+model_backups/adapter-latest.zip
+model_backups/checkpoints-latest.zip
+```
+
+if the live output folders are missing. This is useful when switching from L4 to T4 and the runtime output folder disappears but the project files remain.
+
+### Important Lightning AI Note
+
+Before logging out or switching GPU, make sure these files exist in the file browser:
+
+```text
+model_backups/adapter-latest.zip
+model_backups/checkpoints-latest.zip
+outputs/qwen-reasoning-lora-final/
+```
+
+If `model_backups/` is missing, the training was not backed up yet. Run the post-training save/backup cell before changing runtime.
+
+### Why Eval Loss Had Only Two Points Before
+
+The previous notebook evaluated only once per epoch. With `num_train_epochs=2`, that produces only two eval-loss points. The notebook now uses step-based evaluation:
+
+```python
+eval_strategy="steps"
+eval_steps=50
+save_strategy="steps"
+save_steps=50
+```
+
+This gives a more useful eval-loss curve while still keeping runtime reasonable.
