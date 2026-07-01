@@ -1,0 +1,42 @@
+{
+  "run_name": "len512_r16_a32",
+  "created_at_utc": "2026-06-30T17:13:09.492934+00:00",
+  "model_id": "Qwen/Qwen2.5-3B-Instruct",
+  "data_path": "/home/zeus/DeepReasoning/data/sft_reasoning_2k.jsonl",
+  "max_len": 512,
+  "lora_r": 16,
+  "lora_alpha": 32,
+  "lora_dropout": 0.05,
+  "target_modules": [
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj"
+  ],
+  "seed": 42,
+  "num_epochs": 2.0,
+  "learning_rate": 0.0002,
+  "train_batch_size": 4,
+  "eval_batch_size": 4,
+  "gradient_accumulation_steps": 8,
+  "effective_batch_size": 32,
+  "eval_problems": 100,
+  "self_consistency_n_max": 10,
+  "self_consistency_n_list": [
+    1,
+    3,
+    5,
+    7,
+    10
+  ],
+  "max_new_tokens": 512,
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "compute_capability": [
+    12,
+    0
+  ],
+  "compute_dtype": "torch.bfloat16"
+}

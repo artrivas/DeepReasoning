@@ -1,0 +1,17 @@
+{
+  "train_runtime": 738.7436,
+  "train_samples_per_second": 4.602,
+  "train_steps_per_second": 0.146,
+  "total_flos": 5.32159300852777e+16,
+  "train_loss": 0.3762625857359833,
+  "epoch": 2.0,
+  "eval_loss": 0.324096143245697,
+  "eval_runtime": 16.723,
+  "eval_samples_per_second": 17.939,
+  "eval_steps_per_second": 4.485,
+  "train_wall_time_seconds": 739.0052092075348,
+  "best_checkpoint": "/home/zeus/DeepReasoning/artifacts/len1024_r8_a16/checkpoints/checkpoint-100",
+  "best_metric": 0.324096143245697,
+  "global_step": 108,
+  "max_gpu_memory_allocated_gib": 11.348651885986328
+}

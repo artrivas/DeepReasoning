@@ -1,0 +1,26 @@
+{
+  "train": {
+    "count": 1700,
+    "truncated_count": 1497,
+    "truncated_fraction": 0.8805882352941177,
+    "original_length_mean": 821.6052941176471,
+    "original_length_p50": 717.0,
+    "original_length_p90": 1157.5000000000007,
+    "original_length_p95": 1476.2499999999998,
+    "original_length_p99": 2866.8799999999983,
+    "trained_tokens_mean": 364.61,
+    "zero_trained_examples": 0
+  },
+  "validation": {
+    "count": 300,
+    "truncated_count": 257,
+    "truncated_fraction": 0.8566666666666667,
+    "original_length_mean": 777.3466666666667,
+    "original_length_p50": 713.0,
+    "original_length_p90": 1121.6000000000001,
+    "original_length_p95": 1396.25,
+    "original_length_p99": 1737.8099999999984,
+    "trained_tokens_mean": 365.31666666666666,
+    "zero_trained_examples": 0
+  }
+}

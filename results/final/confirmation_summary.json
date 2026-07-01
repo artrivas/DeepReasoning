@@ -1,0 +1,20 @@
+{
+  "completed_at_utc": "2026-06-30T22:50:01.862229+00:00",
+  "adapter_dir": "/home/zeus/DeepReasoning/artifacts/screen_len1024_r8_a16_lr5e5_e1_bs8/adapter",
+  "n_examples": 100,
+  "max_new_tokens": 1024,
+  "base_accuracy": 0.72,
+  "adapter_accuracy": 0.81,
+  "adapter_minus_base": 0.09,
+  "bootstrap_95_ci": [
+    -0.01,
+    0.19
+  ],
+  "adapter_wins": 19,
+  "base_wins": 10,
+  "ties": 71,
+  "valid_format_rate": 0.98,
+  "reflection_rate": 0.98,
+  "mean_trace_words": 320.39,
+  "mean_latency_seconds": 17.72034044742584
+}

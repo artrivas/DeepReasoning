@@ -1,0 +1,44 @@
+{
+  "base": {
+    "n_examples": 100,
+    "greedy_accuracy": 0.72,
+    "valid_format_rate": 0.65,
+    "reflection_rate": 0.91,
+    "mean_thinking_words": 77.88,
+    "mean_reflection_words": 25.0,
+    "mean_greedy_latency_seconds": 6.223129308223724,
+    "self_consistency_accuracy": {
+      "1": 0.63,
+      "3": 0.73,
+      "5": 0.88,
+      "7": 0.91,
+      "10": 0.91
+    }
+  },
+  "adapter": {
+    "n_examples": 100,
+    "greedy_accuracy": 0.29,
+    "valid_format_rate": 0.31,
+    "reflection_rate": 0.32,
+    "mean_thinking_words": 141.06,
+    "mean_reflection_words": 20.8,
+    "mean_greedy_latency_seconds": 17.21646864414215,
+    "self_consistency_accuracy": {
+      "1": 0.26,
+      "3": 0.36,
+      "5": 0.42,
+      "7": 0.47,
+      "10": 0.5
+    }
+  },
+  "paired_greedy_comparison": {
+    "adapter_minus_base": -0.43,
+    "bootstrap_95_ci": [
+      -0.54,
+      -0.32
+    ],
+    "adapter_wins": 5,
+    "base_wins": 48,
+    "ties": 47
+  }
+}

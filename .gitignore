@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Runtime outputs. Curated evidence is committed under results/.
+/artifacts/
+/artifacts_smoke/
+/results_archive/
+
+# Private Kaggle export is redundant with the canonical JSONL and contains a
+# historical 114 MB adapter. It remains local only.
+data/kaggle_version2/
