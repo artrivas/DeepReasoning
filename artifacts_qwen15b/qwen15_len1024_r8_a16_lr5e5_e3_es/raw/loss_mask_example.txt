@@ -1,0 +1,59 @@
+=== MASKED PROMPT ===
+<|im_start|>system
+You are a meticulous reasoning tutor.
+For every problem, answer using EXACTLY these tags in order:
+<thinking>
+Reason step by step. Show every intermediate calculation.
+</thinking>
+<reflection>
+Re-check your reasoning. Look for arithmetic slips or wrong assumptions.
+</reflection>
+<answer>
+Give only the final answer.
+</answer><|im_end|>
+<|im_start|>user
+An airline company owns 5 airplanes. Every airplane they own has 20 rows with 7 seats in each row. Each airplane makes 2 flights a day. How many passengers can the airline company accommodate each day?<|im_end|>
+<|im_start|>assistant
+
+
+=== TRAINED ASSISTANT TOKENS ===
+<thinking>
+Here's my thinking process to solve this problem:
+
+1.  **Understand the Goal:** The question asks for the total number of passengers the airline can accommodate *each day*.
+
+2.  **Break Down the Problem:** I need to find the capacity of one airplane, then multiply by the number of airplanes, and finally multiply by the number of flights per day.
+
+3.  **Step 1: Calculate seats per airplane.**
+    *   Number of rows per airplane = 20
+    *   Number of seats per row = 7
+    *   Seats per airplane = Rows * Seats per row
+    *   Seats per airplane = 20 * 7
+
+4.  **Step 2: Calculate total seats across all airplanes.**
+    *   Number of airplanes = 5
+    *   Total seats (if all airplanes flew once) = Seats per airplane * Number of airplanes
+    *   Total seats = (20 * 7) * 5
+
+5.  **Step 3: Calculate total accommodation per day.**
+    *   Number of flights per day per airplane = 2
+    *   Since each airplane makes 2 flights, the total capacity is doubled for the entire fleet.
+    *   Total passengers accommodated per day = Total seats (from Step 2) * Flights per day per airplane
+    *   Total passengers accommodated per day = ((20 * 7) * 5) * 2
+
+6.  **Perform the Calculations:**
+    *   20 * 7 = 140 seats per airplane
+    *   140 * 5 = 700 seats across all 5 airplanes (for one flight cycle)
+    *   700 * 2 = 1400 passengers per day
+
+7.  **Final Check:**
+    *   Does the answer make sense? Yes, it's a reasonable number for an airline to accommodate.
+    *   Did I use all the given information? Yes: 5 airplanes, 20 rows, 7 seats, 2 flights/day.
+    *   Did I answer the specific question "How many passengers can the airline company accommodate *each day*?" Yes.
+</thinking>
+<reflection>
+The calculation steps are straightforward and follow a logical progression from individual airplane capacity to total daily capacity. No obvious arithmetic slips or conceptual errors were made. Each piece of information provided in the problem statement was used correctly. The final multiplication order doesn't change the result (e.g., (20 * 7) * 5 * 2 is the same as 20 * 7 * 5 * 2), so the order of operations for multiplication is fine.
+</reflection>
+<answer>
+1400
+</answer><|im_end|>

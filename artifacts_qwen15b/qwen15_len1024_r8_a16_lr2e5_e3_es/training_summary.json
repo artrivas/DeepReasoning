@@ -1,0 +1,17 @@
+{
+  "train_runtime": 553.7911,
+  "train_samples_per_second": 9.209,
+  "train_steps_per_second": 0.293,
+  "total_flos": 4.011240092398387e+16,
+  "train_loss": 0.5151711739139793,
+  "epoch": 3.0,
+  "eval_loss": 0.45581939816474915,
+  "eval_runtime": 10.7434,
+  "eval_samples_per_second": 27.924,
+  "eval_steps_per_second": 3.537,
+  "train_wall_time_seconds": 554.0775129795074,
+  "best_checkpoint": "/home/zeus/DeepReasoning/artifacts_qwen15b/qwen15_len1024_r8_a16_lr2e5_e3_es/checkpoints/checkpoint-160",
+  "best_metric": 0.45581939816474915,
+  "global_step": 162,
+  "max_gpu_memory_allocated_gib": 56.271918296813965
+}

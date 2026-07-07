@@ -1,0 +1,42 @@
+Checked 1 package in 6ms
+Checked 10 packages in 7ms
+[run] qwen15_len1024_r8_a16_lr5e5_e3_es max_len=1024 r=8 alpha=16 lr=5e-5
+[NbConvertApp] Converting notebook deepreasoning.ipynb to notebook
+/home/zeus/DeepReasoning/.venv/lib/python3.12/site-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.
+  validate(nb)
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+[NbConvertApp] Writing 293596 bytes to /home/zeus/DeepReasoning/artifacts_qwen15b/qwen15_len1024_r8_a16_lr5e5_e3_es/executed_notebook.ipynb
+[run] qwen15_len1024_r8_a16_lr2e5_e3_es max_len=1024 r=8 alpha=16 lr=2e-5
+[NbConvertApp] Converting notebook deepreasoning.ipynb to notebook
+/home/zeus/DeepReasoning/.venv/lib/python3.12/site-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.
+  validate(nb)
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+[NbConvertApp] Writing 293968 bytes to /home/zeus/DeepReasoning/artifacts_qwen15b/qwen15_len1024_r8_a16_lr2e5_e3_es/executed_notebook.ipynb
+[run] qwen15_len1024_r16_a32_lr5e5_e3_es max_len=1024 r=16 alpha=32 lr=5e-5
+[NbConvertApp] Converting notebook deepreasoning.ipynb to notebook
+/home/zeus/DeepReasoning/.venv/lib/python3.12/site-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.
+  validate(nb)
+[IPKernelApp] WARNING | Kernel is running over TCP without encryption. All communication (including code and outputs) is sent in plain text and is susceptible to eavesdropping. Use IPC transport or launch with kernel manager-provisioned CurveZMQ keys to enable transport encryption.
+[NbConvertApp] Writing 288447 bytes to /home/zeus/DeepReasoning/artifacts_qwen15b/qwen15_len1024_r16_a32_lr5e5_e3_es/executed_notebook.ipynb
+# DeepReasoning ablation report
+
+## Experiment matrix and headline results
+
+| run                                |   max_len |   lora_r |   lora_alpha |   trainable_parameters | train_truncation_rate   |   eval_loss |   best_eval_loss |   train_minutes |   max_gpu_gib | base_greedy_accuracy   | adapter_greedy_accuracy   | adapter_minus_base   | adapter_format_rate   | adapter_reflection_rate   | base_sc_best   | adapter_sc_best   |
+|:-----------------------------------|----------:|---------:|-------------:|-----------------------:|:------------------------|------------:|-----------------:|----------------:|--------------:|:-----------------------|:--------------------------|:---------------------|:----------------------|:--------------------------|:---------------|:------------------|
+| qwen15_len1024_r8_a16_lr2e5_e3_es  |      1024 |        8 |           16 |                9232384 | 15.0%                   |    0.455819 |         0.455819 |         9.23463 |       56.2719 | 0.0%                   | 56.7%                     | 56.7%                | 80.0%                 | 80.0%                     | 0.0%           | 56.7%             |
+| qwen15_len1024_r8_a16_lr5e5_e3_es  |      1024 |        8 |           16 |                9232384 | 15.0%                   |    0.401758 |         0.401758 |         9.22264 |       56.2719 | 0.0%                   | 63.3%                     | 63.3%                | 90.0%                 | 90.0%                     | 0.0%           | 63.3%             |
+| qwen15_len1024_r16_a32_lr5e5_e3_es |      1024 |       16 |           32 |               18464768 | 15.0%                   |    0.38319  |         0.38319  |         9.23821 |       56.3761 | 0.0%                   | 53.3%                     | 53.3%                | 80.0%                 | 83.3%                     | 0.0%           | 53.3%             |
+
+## Interpretation guardrails
+
+- All runs use the same seeded 85/15 training split and the same held-out GSM8K indices.
+- Base-model generations are cached and reused, preventing decoding noise across comparisons.
+- `adapter_minus_base` is a paired difference on the exact same questions.
+- Sequence-length conclusions should be read together with `train_truncation_rate`.
+- Full traces remain in each run's `raw/` directory for qualitative error analysis.
+
+## Reproduction
+
+Run `./run_ablation.sh`. Completed configurations are skipped safely.
+

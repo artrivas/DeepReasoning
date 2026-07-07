@@ -1,0 +1,239 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+base 1/100 strict=False loose=False fmt=False latency=5.5s
+base 2/100 strict=False loose=False fmt=False latency=5.4s
+base 3/100 strict=False loose=True fmt=False latency=2.6s
+base 4/100 strict=False loose=True fmt=False latency=2.1s
+base 5/100 strict=False loose=True fmt=False latency=5.2s
+base 6/100 strict=False loose=True fmt=False latency=4.0s
+base 7/100 strict=False loose=True fmt=False latency=4.5s
+base 8/100 strict=False loose=True fmt=False latency=4.3s
+base 9/100 strict=False loose=False fmt=False latency=3.2s
+base 10/100 strict=False loose=False fmt=False latency=5.6s
+base 11/100 strict=False loose=False fmt=False latency=3.6s
+base 12/100 strict=False loose=True fmt=False latency=5.4s
+base 13/100 strict=False loose=False fmt=False latency=4.0s
+base 14/100 strict=False loose=True fmt=False latency=4.1s
+base 15/100 strict=False loose=False fmt=False latency=3.1s
+base 16/100 strict=False loose=True fmt=False latency=4.5s
+base 17/100 strict=False loose=True fmt=False latency=3.1s
+base 18/100 strict=False loose=False fmt=False latency=3.0s
+base 19/100 strict=False loose=True fmt=False latency=4.3s
+base 20/100 strict=False loose=True fmt=False latency=4.9s
+base 21/100 strict=False loose=False fmt=False latency=5.2s
+base 22/100 strict=False loose=False fmt=False latency=3.1s
+base 23/100 strict=False loose=False fmt=False latency=4.3s
+base 24/100 strict=False loose=False fmt=False latency=5.2s
+base 25/100 strict=False loose=True fmt=False latency=4.4s
+base 26/100 strict=False loose=True fmt=False latency=6.7s
+base 27/100 strict=False loose=True fmt=False latency=3.3s
+base 28/100 strict=False loose=False fmt=False latency=3.0s
+base 29/100 strict=False loose=True fmt=False latency=4.6s
+base 30/100 strict=False loose=False fmt=False latency=5.8s
+base 31/100 strict=False loose=True fmt=False latency=2.6s
+base 32/100 strict=False loose=True fmt=False latency=3.2s
+base 33/100 strict=False loose=True fmt=False latency=2.6s
+base 34/100 strict=False loose=True fmt=False latency=6.0s
+base 35/100 strict=False loose=True fmt=False latency=3.7s
+base 36/100 strict=False loose=True fmt=False latency=4.5s
+base 37/100 strict=False loose=False fmt=False latency=3.5s
+base 38/100 strict=False loose=True fmt=False latency=3.7s
+base 39/100 strict=False loose=True fmt=False latency=5.6s
+base 40/100 strict=False loose=True fmt=False latency=3.8s
+base 41/100 strict=False loose=False fmt=False latency=2.3s
+base 42/100 strict=False loose=True fmt=False latency=6.2s
+base 43/100 strict=False loose=False fmt=False latency=4.9s
+base 44/100 strict=False loose=False fmt=False latency=4.1s
+base 45/100 strict=False loose=False fmt=False latency=2.9s
+base 46/100 strict=False loose=True fmt=False latency=4.6s
+base 47/100 strict=False loose=False fmt=False latency=3.1s
+base 48/100 strict=False loose=False fmt=False latency=3.4s
+base 49/100 strict=False loose=True fmt=False latency=2.7s
+base 50/100 strict=False loose=True fmt=False latency=3.4s
+base 51/100 strict=False loose=True fmt=False latency=2.8s
+base 52/100 strict=False loose=True fmt=False latency=3.6s
+base 53/100 strict=False loose=True fmt=False latency=3.0s
+base 54/100 strict=False loose=True fmt=False latency=2.5s
+base 55/100 strict=False loose=True fmt=False latency=4.3s
+base 56/100 strict=False loose=False fmt=False latency=5.4s
+base 57/100 strict=False loose=True fmt=False latency=5.3s
+base 58/100 strict=False loose=True fmt=False latency=5.9s
+base 59/100 strict=False loose=False fmt=False latency=3.7s
+base 60/100 strict=False loose=False fmt=False latency=4.0s
+base 61/100 strict=False loose=True fmt=False latency=4.9s
+base 62/100 strict=False loose=True fmt=False latency=4.9s
+base 63/100 strict=False loose=True fmt=False latency=4.4s
+base 64/100 strict=False loose=False fmt=False latency=3.2s
+base 65/100 strict=False loose=True fmt=False latency=4.9s
+base 66/100 strict=False loose=False fmt=False latency=4.5s
+base 67/100 strict=False loose=False fmt=False latency=5.3s
+base 68/100 strict=False loose=False fmt=False latency=4.7s
+base 69/100 strict=False loose=True fmt=False latency=5.1s
+base 70/100 strict=False loose=True fmt=False latency=5.1s
+base 71/100 strict=False loose=True fmt=False latency=3.7s
+base 72/100 strict=False loose=False fmt=False latency=3.8s
+base 73/100 strict=False loose=True fmt=False latency=5.7s
+base 74/100 strict=False loose=False fmt=False latency=5.1s
+base 75/100 strict=False loose=True fmt=False latency=4.5s
+base 76/100 strict=False loose=False fmt=False latency=3.4s
+base 77/100 strict=False loose=True fmt=False latency=3.4s
+base 78/100 strict=False loose=False fmt=False latency=4.6s
+base 79/100 strict=False loose=False fmt=False latency=2.2s
+base 80/100 strict=False loose=False fmt=False latency=6.6s
+base 81/100 strict=False loose=True fmt=False latency=3.3s
+base 82/100 strict=False loose=False fmt=False latency=5.9s
+base 83/100 strict=False loose=True fmt=False latency=2.7s
+base 84/100 strict=False loose=True fmt=False latency=8.6s
+base 85/100 strict=False loose=False fmt=False latency=3.8s
+base 86/100 strict=False loose=False fmt=False latency=2.6s
+base 87/100 strict=False loose=False fmt=False latency=3.0s
+base 88/100 strict=False loose=False fmt=False latency=2.1s
+base 89/100 strict=False loose=True fmt=False latency=4.0s
+base 90/100 strict=False loose=True fmt=False latency=3.8s
+base 91/100 strict=False loose=True fmt=False latency=2.2s
+base 92/100 strict=False loose=False fmt=False latency=3.6s
+base 93/100 strict=False loose=False fmt=False latency=3.7s
+base 94/100 strict=False loose=True fmt=False latency=4.7s
+base 95/100 strict=False loose=False fmt=False latency=4.4s
+base 96/100 strict=False loose=True fmt=False latency=5.1s
+base 97/100 strict=False loose=False fmt=False latency=6.0s
+base 98/100 strict=False loose=False fmt=False latency=3.7s
+base 99/100 strict=False loose=False fmt=False latency=6.7s
+base 100/100 strict=False loose=True fmt=False latency=4.0s
+adapter 1/100 strict=False loose=False fmt=False latency=19.3s
+adapter 2/100 strict=False loose=False fmt=False latency=19.4s
+adapter 3/100 strict=False loose=False fmt=True latency=14.7s
+adapter 4/100 strict=False loose=False fmt=True latency=16.1s
+adapter 5/100 strict=True loose=True fmt=True latency=12.9s
+adapter 6/100 strict=True loose=True fmt=True latency=15.1s
+adapter 7/100 strict=False loose=False fmt=False latency=19.4s
+adapter 8/100 strict=False loose=False fmt=False latency=19.5s
+adapter 9/100 strict=False loose=False fmt=True latency=11.6s
+adapter 10/100 strict=True loose=True fmt=True latency=15.3s
+adapter 11/100 strict=True loose=True fmt=True latency=13.1s
+adapter 12/100 strict=True loose=True fmt=True latency=16.8s
+adapter 13/100 strict=False loose=False fmt=False latency=19.5s
+adapter 14/100 strict=True loose=True fmt=True latency=11.6s
+adapter 15/100 strict=False loose=False fmt=False latency=19.3s
+adapter 16/100 strict=False loose=False fmt=True latency=15.2s
+adapter 17/100 strict=True loose=True fmt=True latency=18.9s
+adapter 18/100 strict=True loose=True fmt=True latency=13.3s
+adapter 19/100 strict=False loose=False fmt=False latency=19.3s
+adapter 20/100 strict=False loose=False fmt=False latency=19.2s
+adapter 21/100 strict=False loose=False fmt=True latency=15.4s
+adapter 22/100 strict=True loose=True fmt=True latency=8.9s
+adapter 23/100 strict=False loose=False fmt=True latency=14.6s
+adapter 24/100 strict=False loose=False fmt=True latency=13.5s
+adapter 25/100 strict=False loose=False fmt=True latency=11.7s
+adapter 26/100 strict=True loose=True fmt=True latency=17.1s
+adapter 27/100 strict=True loose=True fmt=True latency=13.2s
+adapter 28/100 strict=False loose=False fmt=True latency=16.3s
+adapter 29/100 strict=True loose=True fmt=True latency=11.8s
+adapter 30/100 strict=False loose=False fmt=True latency=14.5s
+adapter 31/100 strict=True loose=True fmt=True latency=10.3s
+adapter 32/100 strict=True loose=True fmt=True latency=16.9s
+adapter 33/100 strict=True loose=True fmt=True latency=12.7s
+adapter 34/100 strict=True loose=True fmt=True latency=17.3s
+adapter 35/100 strict=False loose=False fmt=True latency=15.8s
+adapter 36/100 strict=True loose=True fmt=True latency=12.7s
+adapter 37/100 strict=False loose=False fmt=False latency=19.3s
+adapter 38/100 strict=True loose=True fmt=True latency=14.4s
+adapter 39/100 strict=False loose=False fmt=False latency=19.3s
+adapter 40/100 strict=True loose=True fmt=True latency=11.9s
+adapter 41/100 strict=True loose=True fmt=True latency=15.0s
+adapter 42/100 strict=False loose=False fmt=True latency=17.7s
+adapter 43/100 strict=False loose=False fmt=True latency=17.8s
+adapter 44/100 strict=True loose=True fmt=True latency=13.6s
+adapter 45/100 strict=False loose=False fmt=False latency=19.2s
+adapter 46/100 strict=False loose=False fmt=True latency=14.8s
+adapter 47/100 strict=False loose=False fmt=True latency=18.8s
+adapter 48/100 strict=True loose=True fmt=True latency=13.0s
+adapter 49/100 strict=False loose=False fmt=False latency=19.4s
+adapter 50/100 strict=True loose=True fmt=True latency=13.9s
+adapter 51/100 strict=False loose=False fmt=False latency=19.4s
+adapter 52/100 strict=True loose=True fmt=True latency=13.9s
+adapter 53/100 strict=False loose=False fmt=True latency=15.2s
+adapter 54/100 strict=False loose=False fmt=False latency=19.5s
+adapter 55/100 strict=True loose=True fmt=True latency=14.1s
+adapter 56/100 strict=True loose=True fmt=True latency=15.3s
+adapter 57/100 strict=False loose=False fmt=False latency=19.2s
+adapter 58/100 strict=False loose=False fmt=False latency=19.1s
+adapter 59/100 strict=True loose=True fmt=True latency=11.8s
+adapter 60/100 strict=False loose=False fmt=False latency=19.1s
+adapter 61/100 strict=True loose=True fmt=True latency=13.2s
+adapter 62/100 strict=False loose=False fmt=False latency=19.4s
+adapter 63/100 strict=False loose=False fmt=True latency=11.8s
+adapter 64/100 strict=True loose=True fmt=True latency=13.3s
+adapter 65/100 strict=True loose=True fmt=True latency=17.9s
+adapter 66/100 strict=False loose=False fmt=True latency=18.6s
+adapter 67/100 strict=True loose=True fmt=True latency=16.4s
+adapter 68/100 strict=False loose=False fmt=True latency=12.8s
+adapter 69/100 strict=False loose=False fmt=False latency=19.5s
+adapter 70/100 strict=True loose=True fmt=True latency=16.7s
+adapter 71/100 strict=False loose=False fmt=False latency=19.4s
+adapter 72/100 strict=True loose=True fmt=True latency=13.4s
+adapter 73/100 strict=False loose=False fmt=True latency=18.3s
+adapter 74/100 strict=True loose=True fmt=True latency=17.0s
+adapter 75/100 strict=True loose=True fmt=True latency=16.2s
+adapter 76/100 strict=True loose=True fmt=True latency=11.1s
+adapter 77/100 strict=True loose=True fmt=True latency=8.9s
+adapter 78/100 strict=True loose=True fmt=True latency=17.2s
+adapter 79/100 strict=True loose=True fmt=True latency=12.3s
+adapter 80/100 strict=False loose=False fmt=False latency=19.2s
+adapter 81/100 strict=True loose=True fmt=True latency=12.5s
+adapter 82/100 strict=False loose=False fmt=True latency=12.2s
+adapter 83/100 strict=True loose=True fmt=True latency=11.3s
+adapter 84/100 strict=True loose=True fmt=True latency=18.6s
+adapter 85/100 strict=False loose=False fmt=True latency=11.2s
+adapter 86/100 strict=False loose=False fmt=True latency=12.5s
+adapter 87/100 strict=False loose=False fmt=False latency=19.2s
+adapter 88/100 strict=False loose=False fmt=True latency=16.7s
+adapter 89/100 strict=False loose=False fmt=True latency=18.6s
+adapter 90/100 strict=True loose=True fmt=True latency=16.6s
+adapter 91/100 strict=True loose=True fmt=True latency=8.6s
+adapter 92/100 strict=False loose=False fmt=False latency=19.1s
+adapter 93/100 strict=False loose=True fmt=False latency=19.1s
+adapter 94/100 strict=True loose=True fmt=True latency=16.6s
+adapter 95/100 strict=False loose=False fmt=True latency=15.8s
+adapter 96/100 strict=True loose=True fmt=True latency=12.8s
+adapter 97/100 strict=True loose=True fmt=True latency=16.1s
+adapter 98/100 strict=False loose=False fmt=True latency=16.0s
+adapter 99/100 strict=False loose=False fmt=False latency=19.4s
+adapter 100/100 strict=True loose=True fmt=True latency=16.2s
+{
+  "completed_at_utc": "2026-07-07T22:12:55.716995+00:00",
+  "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+  "adapter_dir": "/home/zeus/DeepReasoning/artifacts_qwen15b/qwen15_len1024_r8_a16_lr5e5_e3_es/adapter",
+  "n_examples": 100,
+  "max_new_tokens": 768,
+  "strict_tag_answer": {
+    "base_accuracy": 0.0,
+    "adapter_accuracy": 0.48,
+    "adapter_minus_base": 0.48,
+    "bootstrap_95_ci": [
+      0.38,
+      0.58
+    ],
+    "adapter_wins": 48,
+    "base_wins": 0,
+    "ties": 52
+  },
+  "loose_numeric_answer": {
+    "base_accuracy": 0.55,
+    "adapter_accuracy": 0.49,
+    "adapter_minus_base": -0.06,
+    "bootstrap_95_ci": [
+      -0.19,
+      0.06
+    ],
+    "adapter_wins": 18,
+    "base_wins": 24,
+    "ties": 58
+  },
+  "base_valid_format_rate": 0.0,
+  "adapter_valid_format_rate": 0.75,
+  "base_reflection_rate": 0.0,
+  "adapter_reflection_rate": 0.75,
+  "base_mean_latency_seconds": 4.191796562671661,
+  "adapter_mean_latency_seconds": 15.685780265331267
+}

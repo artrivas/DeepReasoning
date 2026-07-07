@@ -1,0 +1,22 @@
+# DeepReasoning ablation report
+
+## Experiment matrix and headline results
+
+| run                                |   max_len |   lora_r |   lora_alpha |   trainable_parameters | train_truncation_rate   |   eval_loss |   best_eval_loss |   train_minutes |   max_gpu_gib | base_greedy_accuracy   | adapter_greedy_accuracy   | adapter_minus_base   | adapter_format_rate   | adapter_reflection_rate   | base_sc_best   | adapter_sc_best   |
+|:-----------------------------------|----------:|---------:|-------------:|-----------------------:|:------------------------|------------:|-----------------:|----------------:|--------------:|:-----------------------|:--------------------------|:---------------------|:----------------------|:--------------------------|:---------------|:------------------|
+| qwen15_len1024_r8_a16_lr2e5_e3_es  |      1024 |        8 |           16 |                9232384 | 15.0%                   |    0.455819 |         0.455819 |         9.23463 |       56.2719 | 0.0%                   | 56.7%                     | 56.7%                | 80.0%                 | 80.0%                     | 0.0%           | 56.7%             |
+| qwen15_len1024_r8_a16_lr5e5_e3_es  |      1024 |        8 |           16 |                9232384 | 15.0%                   |    0.401758 |         0.401758 |         9.22264 |       56.2719 | 0.0%                   | 63.3%                     | 63.3%                | 90.0%                 | 90.0%                     | 0.0%           | 63.3%             |
+| qwen15_len1024_r16_a32_lr5e5_e3_es |      1024 |       16 |           32 |               18464768 | 15.0%                   |    0.38319  |         0.38319  |         9.23821 |       56.3761 | 0.0%                   | 53.3%                     | 53.3%                | 80.0%                 | 83.3%                     | 0.0%           | 53.3%             |
+
+## Interpretation guardrails
+
+- All runs use the same seeded 85/15 training split and the same held-out GSM8K indices.
+- Base-model generations are cached and reused, preventing decoding noise across comparisons.
+- `adapter_minus_base` is a paired difference on the exact same questions.
+- Sequence-length conclusions should be read together with `train_truncation_rate`.
+- Full traces remain in each run's `raw/` directory for qualitative error analysis.
+
+## Reproduction
+
+Run `./run_ablation.sh`. Completed configurations are skipped safely.
+

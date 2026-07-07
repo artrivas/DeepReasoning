@@ -47,8 +47,8 @@ for run_dir in sorted(ARTIFACT_ROOT.iterdir()):
             "adapter_minus_base": evaluation["paired_greedy_comparison"]["adapter_minus_base"],
             "adapter_format_rate": evaluation["adapter"]["valid_format_rate"],
             "adapter_reflection_rate": evaluation["adapter"]["reflection_rate"],
-            "base_sc_n10": evaluation["base"]["self_consistency_accuracy"]["10"],
-            "adapter_sc_n10": evaluation["adapter"]["self_consistency_accuracy"]["10"],
+            "base_sc_best": next(reversed(evaluation["base"].get("self_consistency_accuracy", {"1": evaluation["base"]["greedy_accuracy"]}).values())),
+            "adapter_sc_best": next(reversed(evaluation["adapter"].get("self_consistency_accuracy", {"1": evaluation["adapter"]["greedy_accuracy"]}).values())),
         }
     )
 
@@ -66,8 +66,8 @@ for column in [
     "adapter_minus_base",
     "adapter_format_rate",
     "adapter_reflection_rate",
-    "base_sc_n10",
-    "adapter_sc_n10",
+    "base_sc_best",
+    "adapter_sc_best",
 ]:
     display[column] = (100 * display[column]).map(lambda value: f"{value:.1f}%")
 

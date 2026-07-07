@@ -1,0 +1,36 @@
+{
+  "base": {
+    "n_examples": 30,
+    "greedy_accuracy": 0.0,
+    "valid_format_rate": 0.0,
+    "reflection_rate": 0.0,
+    "mean_thinking_words": 0.0,
+    "mean_reflection_words": 0.0,
+    "mean_greedy_latency_seconds": 5.110810661315918,
+    "self_consistency_accuracy": {
+      "1": 0.0
+    }
+  },
+  "adapter": {
+    "n_examples": 30,
+    "greedy_accuracy": 0.5666666666666667,
+    "valid_format_rate": 0.8,
+    "reflection_rate": 0.8,
+    "mean_thinking_words": 238.16666666666666,
+    "mean_reflection_words": 57.13333333333333,
+    "mean_greedy_latency_seconds": 17.379045645395916,
+    "self_consistency_accuracy": {
+      "1": 0.5666666666666667
+    }
+  },
+  "paired_greedy_comparison": {
+    "adapter_minus_base": 0.5666666666666667,
+    "bootstrap_95_ci": [
+      0.4,
+      0.7333333333333333
+    ],
+    "adapter_wins": 17,
+    "base_wins": 0,
+    "ties": 13
+  }
+}

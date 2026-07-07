@@ -91,6 +91,7 @@ cells = [
             BitsAndBytesConfig,
             DataCollatorForSeq2Seq,
             Trainer,
+            EarlyStoppingCallback,
             TrainerCallback,
             TrainingArguments,
             set_seed,
@@ -116,6 +117,10 @@ cells = [
         N_LIST = [int(x) for x in os.getenv("N_LIST", "1").split(",")]
         MAX_NEW_TOKENS = int(os.getenv("MAX_NEW_TOKENS", "1024"))
         RUN_SELF_CONSISTENCY = os.getenv("RUN_SELF_CONSISTENCY", "0") == "1"
+        EVAL_STEPS = int(os.getenv("EVAL_STEPS", "25"))
+        SAVE_STEPS = int(os.getenv("SAVE_STEPS", str(EVAL_STEPS)))
+        EARLY_STOPPING_PATIENCE = int(os.getenv("EARLY_STOPPING_PATIENCE", "0"))
+        EARLY_STOPPING_THRESHOLD = float(os.getenv("EARLY_STOPPING_THRESHOLD", "0.0"))
 
         RUN_DIR = ARTIFACT_ROOT / RUN_NAME
         CHECKPOINT_DIR = RUN_DIR / "checkpoints"
@@ -176,6 +181,10 @@ cells = [
             "self_consistency_n_list": N_LIST,
             "max_new_tokens": MAX_NEW_TOKENS,
             "run_self_consistency": RUN_SELF_CONSISTENCY,
+            "eval_steps": EVAL_STEPS,
+            "save_steps": SAVE_STEPS,
+            "early_stopping_patience": EARLY_STOPPING_PATIENCE,
+            "early_stopping_threshold": EARLY_STOPPING_THRESHOLD,
             "gpu": GPU_NAME,
             "compute_capability": list(COMPUTE_CAPABILITY),
             "compute_dtype": str(COMPUTE_DTYPE),
@@ -474,9 +483,9 @@ cells = [
             logging_strategy="steps",
             logging_steps=1,
             eval_strategy="steps",
-            eval_steps=25,
+            eval_steps=EVAL_STEPS,
             save_strategy="steps",
-            save_steps=25,
+            save_steps=SAVE_STEPS,
             save_total_limit=2,
             load_best_model_at_end=True,
             metric_for_best_model="eval_loss",
@@ -487,6 +496,15 @@ cells = [
             remove_unused_columns=True,
             disable_tqdm=False,
         )
+        callbacks = [ArtifactCallback()]
+        if EARLY_STOPPING_PATIENCE > 0:
+            callbacks.append(
+                EarlyStoppingCallback(
+                    early_stopping_patience=EARLY_STOPPING_PATIENCE,
+                    early_stopping_threshold=EARLY_STOPPING_THRESHOLD,
+                )
+            )
+
         trainer = Trainer(
             model=model,
             args=training_args,
@@ -494,7 +512,7 @@ cells = [
             eval_dataset=eval_tokenized,
             data_collator=collator,
             processing_class=tokenizer,
-            callbacks=[ArtifactCallback()],
+            callbacks=callbacks,
         )
 
         train_started = time.time()
@@ -861,6 +879,7 @@ cells = [
         - Final validation loss: **{final_eval_loss:.4f}**
         - Best validation loss: **{best_eval_loss:.4f}**
         - Wall time: **{train_seconds / 60:.1f} minutes**
+        - Early stopping patience: **{EARLY_STOPPING_PATIENCE if EARLY_STOPPING_PATIENCE > 0 else "disabled"}**
         - Maximum allocated GPU memory: **{training_summary["max_gpu_memory_allocated_gib"]:.2f} GiB**
         - Training truncation rate: **{100 * token_stats["train"]["truncated_fraction"]:.1f}%**
 

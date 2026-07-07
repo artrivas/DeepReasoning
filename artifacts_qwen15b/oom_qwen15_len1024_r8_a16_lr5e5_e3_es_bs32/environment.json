@@ -1,0 +1,16 @@
+{
+  "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+  "platform": "Linux-6.8.0-1058-gcp-x86_64-with-glibc2.39",
+  "torch": "2.7.1+cu128",
+  "transformers": "4.57.3",
+  "peft": "0.17.1",
+  "bitsandbytes": "0.47.0",
+  "datasets": "4.0.0",
+  "cuda_runtime": "12.8",
+  "cudnn": 90701,
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "nvidia_smi": "Tue Jul  7 20:40:09 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.126.20             Driver Version: 580.126.20     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA RTX PRO 6000 Blac...    Off |   00000000:05:00.0 Off |                    0 |\n| N/A   30C    P0             46W /  600W |       3MiB /  97887MiB |      0%      Default |\n|                                         |                        |             Disabled |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+",
+  "pip_freeze": "",
+  "git_commit": "e3591b88d272309fccd4ef6784e233db45540e4d",
+  "git_status": "M build_ablation_notebook.py\n M deepreasoning.ipynb\n M summarize_ablation.py\n?? artifacts_qwen15b/\n?? artifacts_qwen15b_job.log\n?? artifacts_qwen15b_job.pid\n?? job_status_qwen15b.sh\n?? run_qwen15b_screen.sh"
+}
