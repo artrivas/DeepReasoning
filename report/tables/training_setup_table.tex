@@ -1,0 +1,14 @@
+\begin{tabular}{ll}
+\toprule
+Setting & Value \\ 
+\midrule
+Base model & Qwen2.5-1.5B-Instruct \\ 
+Dataset & 2k distilled GSM8K-style reasoning traces \\ 
+Sequence length & 1024 tokens \\ 
+Quantization & 4-bit QLoRA, bfloat16 compute \\ 
+LoRA target modules & q/k/v/o + gate/up/down projections \\ 
+Batching & batch 8, grad. accumulation 4, effective 32 \\ 
+Epoch budget & 3 epochs with early stopping monitor \\ 
+Hardware & NVIDIA RTX PRO 6000 Blackwell Server Edition \\ 
+\bottomrule
+\end{tabular}
