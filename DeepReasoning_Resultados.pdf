@@ -1,0 +1,358 @@
+%PDF-1.4
+%
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold >>
+endobj
+3 0 obj
+<< /Length 1954 >>
+stream
+2 w 50.0 785.0 m 545.0 785.0 l S
+BT /F2 18 Tf 50.0 750.0 Td (DeepReasoning: destilacion cognitiva con QLoRA en GSM8K) Tj ET
+0.7 w 50.0 735.0 m 545.0 735.0 l S
+BT /F2 11 Tf 150.0 700.0 Td (Dimael Rivas    Rodrigo Meza    Leonardo Candio) Tj ET
+BT /F1 10 Tf 205.0 682.0 Td (Reporte final de resultados del proyecto) Tj ET
+BT /F1 10 Tf 90.0 620.0 Td (Resumen. Este informe documenta el sistema DeepReasoning para el proyecto) Tj ET
+BT /F1 10 Tf 90.0 607.0 Td (final de Arquitecturas de Modelos de Lenguaje. El objetivo fue entrenar) Tj ET
+BT /F1 10 Tf 90.0 594.0 Td (adaptadores QLoRA para inducir razonamiento estructurado en problemas GSM8K) Tj ET
+BT /F1 10 Tf 90.0 581.0 Td (usando las etiquetas <thinking>, <reflection> y <answer>, y evaluar tanto) Tj ET
+BT /F1 10 Tf 90.0 568.0 Td (exactitud matematica como cumplimiento de formato. Los resultados son mixtos:) Tj ET
+BT /F1 10 Tf 90.0 555.0 Td (Qwen2.5-3B ya resolvia muchos casos y el ajuste podia imitar el estilo del) Tj ET
+BT /F1 10 Tf 90.0 542.0 Td (teacher sin mejorar siempre la respuesta final; Qwen2.5-1.5B aprendio) Tj ET
+BT /F1 10 Tf 90.0 529.0 Td (claramente el formato requerido, pero no supero al base en exactitud numerica) Tj ET
+BT /F1 10 Tf 90.0 516.0 Td (flexible sobre 100 preguntas.) Tj ET
+BT /F2 14 Tf 50.0 380.0 Td (Conclusion principal) Tj ET
+BT /F1 10 Tf 50.0 355.0 Td (El fine-tuning con QLoRA ensena a producir razonamiento verbalizado y respuestas en el) Tj ET
+BT /F1 10 Tf 50.0 342.0 Td (formato obligatorio. Sin embargo, mas razonamiento explicito no garantiza una mayor tasa de) Tj ET
+BT /F1 10 Tf 50.0 329.0 Td (acierto. La ganancia principal observada es de alineacion de formato y estilo; la mejora de) Tj ET
+BT /F1 10 Tf 50.0 316.0 Td (capacidad matematica depende del tamano del modelo, la longitud de contexto y la metrica) Tj ET
+BT /F1 10 Tf 50.0 303.0 Td (usada.) Tj ET
+BT /F1 9 Tf 50.0 60.0 Td (Preprint interno - generado desde artefactos del repositorio.) Tj ET
+endstream
+endobj
+4 0 obj
+<< /Length 1219 >>
+stream
+BT /F2 16 Tf 50.0 795.0 Td (1. Enunciado y arquitectura implementada) Tj ET
+0.8 w 50.0 784.0 m 545.0 784.0 l S
+BT /F1 11 Tf 50.0 750.0 Td (El proyecto exigia un sistema de razonamiento profundo mediante destilacion cognitiva:) Tj ET
+BT /F1 11 Tf 50.0 735.0 Td (generacion de datos sinteticos con razonamientos estructurados, ajuste fino SFT+QLoRA de un) Tj ET
+BT /F1 11 Tf 50.0 720.0 Td (modelo pequeno y escalado en inferencia mediante Self-Consistency / Majority Voting. La) Tj ET
+BT /F1 11 Tf 50.0 705.0 Td (implementacion usa GSM8K, trazas con <thinking>, <reflection> y <answer>, entrenamiento de) Tj ET
+BT /F1 11 Tf 50.0 690.0 Td (adaptadores LoRA sobre Qwen2.5 y evaluacion con exact-match numerico, formato valido y) Tj ET
+BT /F1 11 Tf 50.0 675.0 Td (curvas de entrenamiento.) Tj ET
+BT /F1 11 Tf 50.0 610.0 Td (Se reportan resultados favorables y desfavorables. Esto es importante porque la perdida de) Tj ET
+BT /F1 11 Tf 50.0 595.0 Td (validacion, la exactitud numerica y el cumplimiento del formato responden preguntas) Tj ET
+BT /F1 11 Tf 50.0 580.0 Td (distintas: aprender a escribir un razonamiento estructurado no implica necesariamente) Tj ET
+BT /F1 11 Tf 50.0 565.0 Td (resolver mejor el problema.) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Length 2313 >>
+stream
+BT /F2 16 Tf 50.0 795.0 Td (2. Qwen2.5-3B: ablation inicial y resultados negativos) Tj ET
+0.8 w 50.0 784.0 m 545.0 784.0 l S
+BT /F1 10 Tf 50.0 750.0 Td (La primera fase uso Qwen2.5-3B-Instruct. Los runs iniciales de mayor learning rate) Tj ET
+BT /F1 10 Tf 50.0 737.0 Td (degradaron la exactitud greedy del adapter frente al modelo base, aunque produjeron cierto) Tj ET
+BT /F1 10 Tf 50.0 724.0 Td (aprendizaje del formato.) Tj ET
+BT /F2 8 Tf 45.0 690.0 Td (run) Tj ET
+BT /F2 8 Tf 220.0 690.0 Td (max) Tj ET
+BT /F2 8 Tf 260.0 690.0 Td (r) Tj ET
+BT /F2 8 Tf 300.0 690.0 Td (loss) Tj ET
+BT /F2 8 Tf 345.0 690.0 Td (base) Tj ET
+BT /F2 8 Tf 395.0 690.0 Td (adapter) Tj ET
+BT /F2 8 Tf 455.0 690.0 Td (formato) Tj ET
+BT /F2 8 Tf 515.0 690.0 Td (SC@10) Tj ET
+BT /F1 7 Tf 45.0 672.0 Td (len512_r16_a32) Tj ET
+BT /F1 7 Tf 220.0 672.0 Td (512) Tj ET
+BT /F1 7 Tf 260.0 672.0 Td (16) Tj ET
+BT /F1 7 Tf 300.0 672.0 Td (0.301) Tj ET
+BT /F1 7 Tf 345.0 672.0 Td (72.0%) Tj ET
+BT /F1 7 Tf 395.0 672.0 Td (30.0%) Tj ET
+BT /F1 7 Tf 455.0 672.0 Td (32.0%) Tj ET
+BT /F1 7 Tf 515.0 672.0 Td (53.0%) Tj ET
+BT /F1 7 Tf 45.0 656.0 Td (len1024_r8_a16) Tj ET
+BT /F1 7 Tf 220.0 656.0 Td (1024) Tj ET
+BT /F1 7 Tf 260.0 656.0 Td (8) Tj ET
+BT /F1 7 Tf 300.0 656.0 Td (0.324) Tj ET
+BT /F1 7 Tf 345.0 656.0 Td (72.0%) Tj ET
+BT /F1 7 Tf 395.0 656.0 Td (29.0%) Tj ET
+BT /F1 7 Tf 455.0 656.0 Td (31.0%) Tj ET
+BT /F1 7 Tf 515.0 656.0 Td (50.0%) Tj ET
+BT /F1 7 Tf 45.0 640.0 Td (len1024_r16_a32) Tj ET
+BT /F1 7 Tf 220.0 640.0 Td (1024) Tj ET
+BT /F1 7 Tf 260.0 640.0 Td (16) Tj ET
+BT /F1 7 Tf 300.0 640.0 Td (0.314) Tj ET
+BT /F1 7 Tf 345.0 640.0 Td (72.0%) Tj ET
+BT /F1 7 Tf 395.0 640.0 Td (26.0%) Tj ET
+BT /F1 7 Tf 455.0 640.0 Td (27.0%) Tj ET
+BT /F1 7 Tf 515.0 640.0 Td (52.0%) Tj ET
+BT /F1 10 Tf 50.0 585.0 Td (Lectura: max_len=512 obtuvo 30% adapter vs 72% base en los artefactos consolidados; la nota) Tj ET
+BT /F1 10 Tf 50.0 572.0 Td (experimental del equipo registra una prueba STAR/strict con base cercano a 51% y ajustado) Tj ET
+BT /F1 10 Tf 50.0 559.0 Td (48%, coherente con que el ajuste no aporto una mejora clara de acierto final. Con) Tj ET
+BT /F1 10 Tf 50.0 546.0 Td (max_len=1024, la ventana reduce truncamiento, pero los adapters iniciales caen a 26-29%) Tj ET
+BT /F1 10 Tf 50.0 533.0 Td (greedy mientras el base permanece en 72%.) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Length 2520 >>
+stream
+BT /F2 16 Tf 50.0 795.0 Td (3. Graficas clave: Self-Consistency y comparaciones) Tj ET
+0.8 w 50.0 784.0 m 545.0 784.0 l S
+BT /F2 11 Tf 70.0 675.0 Td (3B base/1024: accuracy vs N) Tj ET
+0.8 w 70.0 480.0 m 280.0 480.0 l S
+0.8 w 70.0 480.0 m 70.0 650.0 l S
+1.2 w 70.0 522.5 m 116.7 565.0 l S
+1.2 w 116.7 565.0 m 163.3 565.0 l S
+1.2 w 163.3 565.0 m 210.0 586.2 l S
+1.2 w 210.0 586.2 m 280.0 607.5 l S
+68.0 520.5 4.0 4.0 re f
+BT /F1 8 Tf 62.0 530.5 Td (62%) Tj ET
+114.7 563.0 4.0 4.0 re f
+BT /F1 8 Tf 108.7 573.0 Td (68%) Tj ET
+161.3 563.0 4.0 4.0 re f
+BT /F1 8 Tf 155.3 573.0 Td (68%) Tj ET
+208.0 584.2 4.0 4.0 re f
+BT /F1 8 Tf 202.0 594.2 Td (70%) Tj ET
+278.0 605.5 4.0 4.0 re f
+BT /F1 8 Tf 272.0 615.5 Td (72%) Tj ET
+BT /F1 8 Tf 150.0 455.0 Td (N trazas votadas) Tj ET
+BT /F1 8 Tf 45.0 565.0 Td (Acc%) Tj ET
+BT /F2 11 Tf 320.0 675.0 Td (3B ajustado/1024: accuracy vs N) Tj ET
+0.8 w 320.0 480.0 m 530.0 480.0 l S
+0.8 w 320.0 480.0 m 320.0 650.0 l S
+1.2 w 320.0 500.0 m 366.7 560.0 l S
+1.2 w 366.7 560.0 m 413.3 580.0 l S
+1.2 w 413.3 580.0 m 460.0 610.0 l S
+1.2 w 460.0 610.0 m 530.0 630.0 l S
+318.0 498.0 4.0 4.0 re f
+BT /F1 8 Tf 312.0 508.0 Td (20%) Tj ET
+364.7 558.0 4.0 4.0 re f
+BT /F1 8 Tf 358.7 568.0 Td (35%) Tj ET
+411.3 578.0 4.0 4.0 re f
+BT /F1 8 Tf 405.3 588.0 Td (40%) Tj ET
+458.0 608.0 4.0 4.0 re f
+BT /F1 8 Tf 452.0 618.0 Td (48%) Tj ET
+528.0 628.0 4.0 4.0 re f
+BT /F1 8 Tf 522.0 638.0 Td (52%) Tj ET
+BT /F1 8 Tf 400.0 455.0 Td (N trazas votadas) Tj ET
+BT /F1 8 Tf 295.0 565.0 Td (Acc%) Tj ET
+BT /F2 11 Tf 80.0 375.0 Td (Mejor 3B: 100 GSM8K) Tj ET
+0.8 w 80.0 170.0 m 260.0 170.0 l S
+0.8 w 80.0 170.0 m 80.0 350.0 l S
+0.100 0.450 0.800 rg 0.100 0.450 0.800 RG
+115.0 170.0 50.0 129.6 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 110.0 155.0 Td (Base) Tj ET
+BT /F1 8 Tf 115.0 305.6 Td (72%) Tj ET
+0.100 0.450 0.800 rg 0.100 0.450 0.800 RG
+185.0 170.0 50.0 145.8 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 180.0 155.0 Td (Adapter) Tj ET
+BT /F1 8 Tf 185.0 321.8 Td (81%) Tj ET
+BT /F2 11 Tf 330.0 375.0 Td (1.5B loose numeric) Tj ET
+0.8 w 330.0 170.0 m 510.0 170.0 l S
+0.8 w 330.0 170.0 m 330.0 350.0 l S
+0.850 0.350 0.150 rg 0.850 0.350 0.150 RG
+365.0 170.0 50.0 99.0 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 360.0 155.0 Td (Base) Tj ET
+BT /F1 8 Tf 365.0 275.0 Td (55%) Tj ET
+0.850 0.350 0.150 rg 0.850 0.350 0.150 RG
+435.0 170.0 50.0 88.2 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 430.0 155.0 Td (Adapter) Tj ET
+BT /F1 8 Tf 435.0 264.2 Td (49%) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Length 1429 >>
+stream
+BT /F2 16 Tf 50.0 795.0 Td (4. Mejor resultado Qwen2.5-3B) Tj ET
+0.8 w 50.0 784.0 m 545.0 784.0 l S
+BT /F1 11 Tf 50.0 750.0 Td (Al bajar la tasa de aprendizaje a 5e-5 y entrenar una epoca, la configuracion max_len=1024,) Tj ET
+BT /F1 11 Tf 50.0 735.0 Td (r=8, alpha=16 obtuvo 81.0% greedy exact-match frente a 72.0% del modelo base en 100) Tj ET
+BT /F1 11 Tf 50.0 720.0 Td (preguntas emparejadas. La diferencia fue de +9 puntos porcentuales con IC bootstrap 95% [-1,) Tj ET
+BT /F1 11 Tf 50.0 705.0 Td (19] puntos. El adapter produjo formato valido en 98.0% de los ejemplos y reflexion en 98.0%.) Tj ET
+BT /F1 11 Tf 50.0 575.0 Td (Este resultado positivo no elimina la conclusion matizada: la configuracion inicial) Tj ET
+BT /F1 11 Tf 50.0 560.0 Td (empeoraba y la mejora aparece al controlar learning rate, epocas, longitud y presupuesto de) Tj ET
+BT /F1 11 Tf 50.0 545.0 Td (generacion.) Tj ET
+BT /F2 11 Tf 160.0 495.0 Td (Confirmacion 3B: exact-match greedy) Tj ET
+0.8 w 160.0 250.0 m 420.0 250.0 l S
+0.8 w 160.0 250.0 m 160.0 470.0 l S
+0.200 0.450 0.850 rg 0.200 0.450 0.850 RG
+195.0 250.0 72.2 158.4 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 190.0 235.0 Td (Base 3B) Tj ET
+BT /F1 8 Tf 195.0 414.4 Td (72%) Tj ET
+0.200 0.450 0.850 rg 0.200 0.450 0.850 RG
+305.0 250.0 72.2 178.2 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 300.0 235.0 Td (Adapter 3B) Tj ET
+BT /F1 8 Tf 305.0 434.2 Td (81%) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Length 1964 >>
+stream
+BT /F2 16 Tf 50.0 795.0 Td (5. Cambio a Qwen2.5-1.5B) Tj ET
+0.8 w 50.0 784.0 m 545.0 784.0 l S
+BT /F1 11 Tf 50.0 750.0 Td (Se cambio a un modelo mas pequeno porque Qwen2.5-3B ya poseia capacidad suficiente para) Tj ET
+BT /F1 11 Tf 50.0 735.0 Td (resolver de manera directa gran parte del dataset. Por ello, el fine-tuning con) Tj ET
+BT /F1 11 Tf 50.0 720.0 Td (razonamientos generados por Gemini Flash no necesariamente incrementaba la capacidad real de) Tj ET
+BT /F1 11 Tf 50.0 705.0 Td (razonamiento, sino que principalmente inducia al modelo a imitar el formato y estilo del) Tj ET
+BT /F1 11 Tf 50.0 690.0 Td (teacher.) Tj ET
+BT /F1 11 Tf 50.0 620.0 Td (Confirmacion 1.5B: strict required-format answer adapter 48.0% vs base 0.0%. Loose numeric) Tj ET
+BT /F1 11 Tf 50.0 605.0 Td (answer adapter 49.0% vs base 55.0%, diferencia -6 pp, IC [-19, 6]. Cumplimiento de formato) Tj ET
+BT /F1 11 Tf 50.0 590.0 Td (adapter 75.0%, base 0.0%.) Tj ET
+BT /F2 11 Tf 85.0 475.0 Td (Strict formato requerido) Tj ET
+0.8 w 85.0 260.0 m 265.0 260.0 l S
+0.8 w 85.0 260.0 m 85.0 450.0 l S
+0.100 0.500 0.200 rg 0.100 0.500 0.200 RG
+120.0 260.0 50.0 0.0 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 115.0 245.0 Td (Base) Tj ET
+BT /F1 8 Tf 120.0 266.0 Td (0%) Tj ET
+0.100 0.500 0.200 rg 0.100 0.500 0.200 RG
+190.0 260.0 50.0 91.2 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 185.0 245.0 Td (Adapter) Tj ET
+BT /F1 8 Tf 190.0 357.2 Td (48%) Tj ET
+BT /F2 11 Tf 330.0 475.0 Td (Loose numeric answer) Tj ET
+0.8 w 330.0 260.0 m 510.0 260.0 l S
+0.8 w 330.0 260.0 m 330.0 450.0 l S
+0.800 0.350 0.150 rg 0.800 0.350 0.150 RG
+365.0 260.0 50.0 104.5 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 360.0 245.0 Td (Base) Tj ET
+BT /F1 8 Tf 365.0 370.5 Td (55%) Tj ET
+0.800 0.350 0.150 rg 0.800 0.350 0.150 RG
+435.0 260.0 50.0 93.1 re f
+0.000 0.000 0.000 rg 0.000 0.000 0.000 RG
+BT /F1 7 Tf 430.0 245.0 Td (Adapter) Tj ET
+BT /F1 8 Tf 435.0 359.1 Td (49%) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Length 1841 >>
+stream
+BT /F2 16 Tf 50.0 795.0 Td (6. Screen de hiperparametros Qwen2.5-1.5B) Tj ET
+0.8 w 50.0 784.0 m 545.0 784.0 l S
+BT /F2 8 Tf 40.0 720.0 Td (run) Tj ET
+BT /F2 8 Tf 220.0 720.0 Td (r) Tj ET
+BT /F2 8 Tf 260.0 720.0 Td (lr) Tj ET
+BT /F2 8 Tf 305.0 720.0 Td (loss) Tj ET
+BT /F2 8 Tf 355.0 720.0 Td (strict30) Tj ET
+BT /F2 8 Tf 415.0 720.0 Td (loose30) Tj ET
+BT /F2 8 Tf 470.0 720.0 Td (format) Tj ET
+BT /F2 8 Tf 525.0 720.0 Td (VRAM) Tj ET
+BT /F1 7 Tf 40.0 702.0 Td (qwen15_len1024_r8_a16_lr5e5_e3_es) Tj ET
+BT /F1 7 Tf 220.0 702.0 Td (8) Tj ET
+BT /F1 7 Tf 260.0 702.0 Td (5e-05) Tj ET
+BT /F1 7 Tf 305.0 702.0 Td (0.402) Tj ET
+BT /F1 7 Tf 355.0 702.0 Td (63.3%) Tj ET
+BT /F1 7 Tf 415.0 702.0 Td (63.3%) Tj ET
+BT /F1 7 Tf 470.0 702.0 Td (90.0%) Tj ET
+BT /F1 7 Tf 525.0 702.0 Td (56.3) Tj ET
+BT /F1 7 Tf 40.0 686.0 Td (qwen15_len1024_r8_a16_lr2e5_e3_es) Tj ET
+BT /F1 7 Tf 220.0 686.0 Td (8) Tj ET
+BT /F1 7 Tf 260.0 686.0 Td (2e-05) Tj ET
+BT /F1 7 Tf 305.0 686.0 Td (0.456) Tj ET
+BT /F1 7 Tf 355.0 686.0 Td (56.7%) Tj ET
+BT /F1 7 Tf 415.0 686.0 Td (63.3%) Tj ET
+BT /F1 7 Tf 470.0 686.0 Td (80.0%) Tj ET
+BT /F1 7 Tf 525.0 686.0 Td (56.3) Tj ET
+BT /F1 7 Tf 40.0 670.0 Td (qwen15_len1024_r16_a32_lr5e5_e3_es) Tj ET
+BT /F1 7 Tf 220.0 670.0 Td (16) Tj ET
+BT /F1 7 Tf 260.0 670.0 Td (5e-05) Tj ET
+BT /F1 7 Tf 305.0 670.0 Td (0.383) Tj ET
+BT /F1 7 Tf 355.0 670.0 Td (53.3%) Tj ET
+BT /F1 7 Tf 415.0 670.0 Td (56.7%) Tj ET
+BT /F1 7 Tf 470.0 670.0 Td (80.0%) Tj ET
+BT /F1 7 Tf 525.0 670.0 Td (56.4) Tj ET
+BT /F1 10 Tf 50.0 610.0 Td (El screen selecciono qwen15_len1024_r8_a16_lr5e5_e3_es porque tenia la mejor exactitud) Tj ET
+BT /F1 10 Tf 50.0 597.0 Td (strict a 30 preguntas y el mejor cumplimiento de formato. El run r=16 logro menor loss pero) Tj ET
+BT /F1 10 Tf 50.0 584.0 Td (peor exactitud, por lo que no se eligio solo por perdida de validacion.) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Length 1778 >>
+stream
+BT /F2 16 Tf 50.0 795.0 Td (7. Interpretacion final) Tj ET
+0.8 w 50.0 784.0 m 545.0 784.0 l S
+BT /F1 11 Tf 50.0 750.0 Td (1\) El proyecto cumple el objetivo tecnico: pipeline reproducible de destilacion cognitiva,) Tj ET
+BT /F1 11 Tf 50.0 735.0 Td (SFT+QLoRA y Test-Time Compute sobre GSM8K.) Tj ET
+BT /F1 11 Tf 50.0 720.0 Td (2\) Los adapters aprenden el formato solicitado \(<thinking>, <reflection>, <answer>\) de forma) Tj ET
+BT /F1 11 Tf 50.0 705.0 Td (clara, especialmente en Qwen2.5-1.5B.) Tj ET
+BT /F1 11 Tf 50.0 690.0 Td (3\) La mejora en formato no equivale automaticamente a mejora en razonamiento matematico: en) Tj ET
+BT /F1 11 Tf 50.0 675.0 Td (1.5B el adapter gana en strict format pero pierde ligeramente en loose numeric accuracy.) Tj ET
+BT /F1 11 Tf 50.0 660.0 Td (4\) En 3B, el modelo base ya esta cerca de saturar parte del benchmark; por eso el fine-) Tj ET
+BT /F1 11 Tf 50.0 645.0 Td (tuning puede tener poco margen y, si se configura mal, empeorar. La mejor configuracion 3B) Tj ET
+BT /F1 11 Tf 50.0 630.0 Td (si produjo una mejora emparejada \(+9 pp\), pero con intervalo de confianza amplio.) Tj ET
+BT /F1 11 Tf 50.0 615.0 Td (5\) La longitud de contexto debe interpretarse con cuidado: 512 tokens reduce razonamiento) Tj ET
+BT /F1 11 Tf 50.0 600.0 Td (explicito y trunca mas ejemplos; 1024 tokens permite trazas largas, pero mas razonamiento) Tj ET
+BT /F1 11 Tf 50.0 585.0 Td (verbalizado puede introducir ruido o sobreajuste al teacher.) Tj ET
+BT /F1 11 Tf 50.0 570.0 Td (6\) La conclusion defendible es que DeepReasoning fue exitoso como alineacion de formato y) Tj ET
+BT /F1 11 Tf 50.0 555.0 Td (estilo de razonamiento, y parcialmente exitoso como mejora de exactitud dependiendo de) Tj ET
+BT /F1 11 Tf 50.0 540.0 Td (configuracion y metrica.) Tj ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 19 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+12 0 obj
+<< /Type /Page /Parent 19 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 4 0 R >>
+endobj
+13 0 obj
+<< /Type /Page /Parent 19 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+14 0 obj
+<< /Type /Page /Parent 19 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 6 0 R >>
+endobj
+15 0 obj
+<< /Type /Page /Parent 19 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 7 0 R >>
+endobj
+16 0 obj
+<< /Type /Page /Parent 19 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 8 0 R >>
+endobj
+17 0 obj
+<< /Type /Page /Parent 19 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 9 0 R >>
+endobj
+18 0 obj
+<< /Type /Page /Parent 19 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 10 0 R >>
+endobj
+19 0 obj
+<< /Type /Pages /Kids [11 0 R 12 0 R 13 0 R 14 0 R 15 0 R 16 0 R 17 0 R 18 0 R] /Count 8 >>
+endobj
+20 0 obj
+<< /Type /Catalog /Pages 19 0 R >>
+endobj
+xref
+0 21
+0000000000 65535 f 
+0000000015 00000 n 
+0000000087 00000 n 
+0000000158 00000 n 
+0000002164 00000 n 
+0000003435 00000 n 
+0000005800 00000 n 
+0000008372 00000 n 
+0000009853 00000 n 
+0000011869 00000 n 
+0000013762 00000 n 
+0000015593 00000 n 
+0000015731 00000 n 
+0000015869 00000 n 
+0000016007 00000 n 
+0000016145 00000 n 
+0000016283 00000 n 
+0000016421 00000 n 
+0000016559 00000 n 
+0000016698 00000 n 
+0000016806 00000 n 
+trailer << /Size 21 /Root 20 0 R >>
+startxref
+16857
+%%EOF
