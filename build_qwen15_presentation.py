@@ -2,193 +2,77 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import nbformat as nbf
-import pandas as pd
 
 ROOT = Path(__file__).resolve().parent
 ART = ROOT / "artifacts_qwen15b"
-PLOTS = ART / "presentation_plots"
-PLOTS.mkdir(exist_ok=True)
-RUNS = [
-    "qwen15_len1024_r8_a16_lr5e5_e3_es",
-    "qwen15_len1024_r8_a16_lr2e5_e3_es",
-    "qwen15_len1024_r16_a32_lr5e5_e3_es",
-]
 
-def load(path):
-    return json.loads(Path(path).read_text())
+report = (ART / "QWEN15B_PRESENTATION_REPORT.md").read_text(encoding="utf-8")
 
-def load_jsonl(path):
-    p = Path(path)
-    if not p.exists():
-        return []
-    return [json.loads(line) for line in p.read_text(encoding="utf-8").splitlines() if line.strip()]
-
-def extract_tag(text, tag):
-    m = re.search(fr"<{tag}>(.*?)</{tag}>", text, re.DOTALL | re.IGNORECASE)
-    return m.group(1).strip() if m else ""
-
-def normalize_number(text):
-    nums = re.findall(r"-?\d+(?:\.\d+)?", str(text).replace(",", "").replace("$", ""))
-    if not nums:
-        return ""
-    val = float(nums[-1])
-    return str(int(val)) if val.is_integer() else str(val)
-
-def loose_from_trace(trace):
-    strict = normalize_number(extract_tag(trace, "answer"))
-    return strict or normalize_number(trace)
-
-rows = []
-for run in RUNS:
-    rd = ART / run
-    cfg = load(rd / "config.json")
-    train = load(rd / "training_summary.json")
-    ev = load(rd / "evaluation_summary.json")
-    params = load(rd / "parameter_stats.json")
-    toks = load(rd / "tokenization_stats.json")
-    adapter_records = load_jsonl(rd / "raw" / "adapter_predictions.jsonl")
-    loose_correct = []
-    for rec in adapter_records:
-        pred = loose_from_trace(rec.get("greedy_trace", rec.get("trace", "")))
-        loose_correct.append(pred == rec["gold_answer"])
-    rows.append({
-        "run": run,
-        "rank": cfg["lora_r"],
-        "alpha": cfg["lora_alpha"],
-        "lr": cfg["learning_rate"],
-        "epochs": cfg["num_epochs"],
-        "train_batch": cfg["train_batch_size"],
-        "grad_accum": cfg["gradient_accumulation_steps"],
-        "effective_batch": cfg["train_batch_size"] * cfg["gradient_accumulation_steps"],
-        "trainable_params_m": params["trainable_parameters"] / 1e6,
-        "truncation_rate": toks["train"]["truncated_fraction"],
-        "eval_loss": train["eval_loss"],
-        "best_eval_loss": train["best_metric"],
-        "train_minutes": train["train_wall_time_seconds"] / 60,
-        "max_gpu_gib": train["max_gpu_memory_allocated_gib"],
-        "strict_accuracy_30": ev["adapter"]["greedy_accuracy"],
-        "loose_accuracy_30": sum(loose_correct) / len(loose_correct),
-        "format_rate_30": ev["adapter"]["valid_format_rate"],
-        "reflection_rate_30": ev["adapter"]["reflection_rate"],
-        "mean_latency_s_30": ev["adapter"]["mean_greedy_latency_seconds"],
-    })
-
-df = pd.DataFrame(rows).sort_values("strict_accuracy_30", ascending=False)
-df.to_csv(ART / "qwen15b_screen_summary.csv", index=False)
-confirm = load(ART / "confirm_qwen15_len1024_r8_a16_lr5e5_e3_es_greedy100" / "evaluation_summary.json")
-
-plt.figure(figsize=(9, 4.8))
-labels = [r.replace("qwen15_", "").replace("_e3_es", "") for r in df["run"]]
-x = range(len(df))
-plt.bar([i - 0.18 for i in x], 100 * df["strict_accuracy_30"], width=0.36, label="strict tagged")
-plt.bar([i + 0.18 for i in x], 100 * df["loose_accuracy_30"], width=0.36, label="loose numeric")
-plt.xticks(list(x), labels, rotation=20, ha="right")
-plt.ylabel("Accuracy on 30-question screen (%)")
-plt.title("Qwen2.5-1.5B screen accuracy")
-plt.legend(); plt.tight_layout(); plt.savefig(PLOTS / "screen_accuracy.png", dpi=180)
-
-plt.figure(figsize=(7, 4.8))
-plt.scatter(df["eval_loss"], 100 * df["strict_accuracy_30"], s=90)
-for _, r in df.iterrows():
-    plt.annotate(f"r{int(r['rank'])}, lr={r['lr']:.0e}", (r["eval_loss"], 100*r["strict_accuracy_30"]), xytext=(5,5), textcoords="offset points")
-plt.xlabel("Validation loss")
-plt.ylabel("Strict screen accuracy (%)")
-plt.title("Validation loss did not perfectly rank answer quality")
-plt.tight_layout(); plt.savefig(PLOTS / "loss_vs_accuracy.png", dpi=180)
-
-plt.figure(figsize=(7, 4.5))
-metrics = ["strict_tag_answer", "loose_numeric_answer"]
-metric_labels = ["Strict tagged", "Loose numeric"]
-base_vals = [100*confirm[m]["base_accuracy"] for m in metrics]
-adapt_vals = [100*confirm[m]["adapter_accuracy"] for m in metrics]
-x = range(len(metrics))
-plt.bar([i - 0.18 for i in x], base_vals, width=0.36, label="base")
-plt.bar([i + 0.18 for i in x], adapt_vals, width=0.36, label="adapter")
-plt.xticks(list(x), metric_labels)
-plt.ylabel("Accuracy on 100-question confirmation (%)")
-plt.title("Leader confirmation: format success vs loose-answer tradeoff")
-plt.legend(); plt.tight_layout(); plt.savefig(PLOTS / "confirm_accuracy.png", dpi=180)
-
-plt.figure(figsize=(7, 4.5))
-plt.bar(["base", "adapter"], [100*confirm["base_valid_format_rate"], 100*confirm["adapter_valid_format_rate"]])
-plt.ylabel("Valid required format (%)")
-plt.title("100-question format compliance")
-plt.tight_layout(); plt.savefig(PLOTS / "confirm_format_rate.png", dpi=180)
-
-plt.figure(figsize=(9, 5))
-for run in RUNS:
-    hist = pd.read_json(ART / run / "raw" / "trainer_log_history.json")
-    evh = hist.dropna(subset=["eval_loss"]) if "eval_loss" in hist else pd.DataFrame()
-    if not evh.empty:
-        plt.plot(evh["step"], evh["eval_loss"], marker="o", label=run.replace("qwen15_", ""))
-plt.xlabel("Optimizer step"); plt.ylabel("Validation loss"); plt.title("Validation curves")
-plt.legend(fontsize=8); plt.tight_layout(); plt.savefig(PLOTS / "validation_curves.png", dpi=180)
-
-fmt = lambda v: f"{100*v:.1f}%"
-leader = df.iloc[0]
-report = f"""# Qwen2.5-1.5B DeepReasoning ablation report
-
-## One-slide conclusion
-
-We repeated the QLoRA DeepReasoning pipeline with `Qwen/Qwen2.5-1.5B-Instruct` because the 3B model was less stressed by the dataset. The best adapter was `{leader['run']}`.
-
-| Metric | Base | Adapter | Interpretation |
-|---|---:|---:|---|
-| Strict tagged answer, 100 questions | {fmt(confirm['strict_tag_answer']['base_accuracy'])} | {fmt(confirm['strict_tag_answer']['adapter_accuracy'])} | Adapter wins because the required format matters. |
-| Loose numeric answer, 100 questions | {fmt(confirm['loose_numeric_answer']['base_accuracy'])} | {fmt(confirm['loose_numeric_answer']['adapter_accuracy'])} | Base remains slightly better at raw math answers. |
-| Valid required format | {fmt(confirm['base_valid_format_rate'])} | {fmt(confirm['adapter_valid_format_rate'])} | LoRA mainly teaches format/instruction following. |
-
-## Why this pipeline
-
-- Same fixed training split and GSM8K evaluation indices across runs.
-- Separate `artifacts_qwen15b` root so no cached 3B base generations contaminate 1.5B results.
-- 30-question greedy screens for quick hyperparameter comparison.
-- 100-question no-retraining confirmation only for the best screened adapter.
-- Strict and loose metrics are both reported because format compliance and final-answer accuracy answer different questions.
-
-## Runtime decisions
-
-- Batch 32 / grad accum 1 OOMed near full VRAM.
-- Batch 16 / grad accum 2 also OOMed during the fp32 full-vocabulary loss.
-- Batch 8 / grad accum 4 was stable and kept the same effective batch size of 32.
-- All stable runs used 3 epochs with early stopping enabled. In practice, validation loss kept improving, so all three ran the full 3 epochs.
-
-## 30-question screen
-
-{df.to_markdown(index=False, floatfmt='.4f')}
-
-The screen selected `{leader['run']}` because it had the best strict accuracy ({fmt(leader['strict_accuracy_30'])}) and best format rate ({fmt(leader['format_rate_30'])}). The r=16 run had lower validation loss but worse answer accuracy, which is why we did not rely on validation loss alone.
-
-## Final interpretation
-
-The best defensible configuration is `{leader['run']}` if the assignment rewards structured reasoning traces. If the only objective is raw GSM8K numeric accuracy, the base 1.5B model is still slightly better. The experiment therefore demonstrates a format-following gain with a raw-answer tradeoff.
-"""
-(ART / "QWEN15B_PRESENTATION_REPORT.md").write_text(report, encoding="utf-8")
-
-setup_code = """from pathlib import Path
+setup_code = r"""
+from pathlib import Path
 import json
+import re
+from collections import Counter
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
-from IPython.display import Markdown, Image, display
+from IPython.display import Markdown, display
 
 ART = Path('artifacts_qwen15b')
-df = pd.read_csv(ART / 'qwen15b_screen_summary.csv')
-confirm = json.loads((ART / 'confirm_qwen15_len1024_r8_a16_lr5e5_e3_es_greedy100' / 'evaluation_summary.json').read_text())
-report_md = (ART / 'QWEN15B_PRESENTATION_REPORT.md').read_text()
+RUNS = [
+    'qwen15_len1024_r8_a16_lr5e5_e3_es',
+    'qwen15_len1024_r8_a16_lr2e5_e3_es',
+    'qwen15_len1024_r16_a32_lr5e5_e3_es',
+]
+LEADER_RUN = 'qwen15_len1024_r8_a16_lr5e5_e3_es'
+CONFIRM_DIR = ART / 'confirm_qwen15_len1024_r8_a16_lr5e5_e3_es_greedy100'
 
-def pct(x):
-    return f'{100*x:.1f}%'
+def load_json(path):
+    return json.loads(Path(path).read_text(encoding='utf-8'))
 
-print('Loaded artifacts from', ART)
-print('Screened runs:', len(df))
-print('Confirmation examples:', confirm['n_examples'])"""
+def load_jsonl(path):
+    path = Path(path)
+    return [json.loads(line) for line in path.read_text(encoding='utf-8').splitlines() if line.strip()]
 
-training_config_code = """# This cell documents the actual training configuration.
-# It is not executed during presentation; the executed results are loaded from artifacts.
+def extract_tag(text, tag):
+    match = re.search(fr'<{tag}>(.*?)</{tag}>', text, re.DOTALL | re.IGNORECASE)
+    return match.group(1).strip() if match else ''
+
+def normalize_number(text):
+    numbers = re.findall(r'-?\d+(?:\.\d+)?', str(text).replace(',', '').replace('$', ''))
+    if not numbers:
+        return ''
+    value = float(numbers[-1])
+    return str(int(value)) if value.is_integer() else str(value)
+
+def score_trace(trace, gold):
+    thinking = extract_tag(trace, 'thinking')
+    reflection = extract_tag(trace, 'reflection')
+    answer = extract_tag(trace, 'answer')
+    strict_prediction = normalize_number(answer)
+    loose_prediction = strict_prediction or normalize_number(trace)
+    return {
+        'strict_prediction': strict_prediction,
+        'loose_prediction': loose_prediction,
+        'valid_format': bool(thinking and reflection and answer),
+        'has_reflection': bool(reflection),
+        'strict_correct': strict_prediction == gold,
+        'loose_correct': loose_prediction == gold,
+    }
+
+confirm_summary = load_json(CONFIRM_DIR / 'evaluation_summary.json')
+print('Loaded artifact root:', ART)
+print('Runs:', len(RUNS))
+print('100-question confirmation examples:', confirm_summary['n_examples'])
+"""
+
+training_config_code = r"""
+# This cell documents the actual training configuration.
+# It is safe during presentation because RUN_FULL_TRAINING is False.
 RUN_FULL_TRAINING = False
 
 if RUN_FULL_TRAINING:
@@ -202,23 +86,31 @@ if RUN_FULL_TRAINING:
     LEARNING_RATE = 5e-5
     NUM_EPOCHS = 3
 
+    # Batch 32 and batch 16 OOMed; batch 8 kept memory stable.
     TRAIN_BATCH_SIZE = 8
     GRADIENT_ACCUMULATION_STEPS = 4
     EFFECTIVE_BATCH_SIZE = TRAIN_BATCH_SIZE * GRADIENT_ACCUMULATION_STEPS
     EVAL_BATCH_SIZE = 8
     GRADIENT_CHECKPOINTING = False
 
-    EVAL_PROBLEMS = 30
+    EVAL_STEPS = 20
+    SAVE_STEPS = 20
+    EARLY_STOPPING_PATIENCE = 3
+    EARLY_STOPPING_THRESHOLD = 5e-4
     MAX_NEW_TOKENS = 768
-    RUN_SELF_CONSISTENCY = False"""
+"""
 
-lora_training_code = """# Core QLoRA training cell used by the experiment.
-# Kept behind RUN_FULL_TRAINING so this presentation notebook opens quickly.
+training_code = r"""
+# Core QLoRA training code used by the experiment.
+# This mirrors the cloud run but is guarded to avoid accidental retraining.
 if RUN_FULL_TRAINING:
-    from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-    from transformers import DataCollatorForSeq2Seq, EarlyStoppingCallback, Trainer, TrainingArguments
     import torch
+    from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+    from transformers import (
+        AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig,
+        DataCollatorForSeq2Seq, EarlyStoppingCallback,
+        Trainer, TrainingArguments,
+    )
 
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
     if tokenizer.pad_token_id is None:
@@ -264,9 +156,9 @@ if RUN_FULL_TRAINING:
         gradient_checkpointing=GRADIENT_CHECKPOINTING,
         logging_steps=1,
         eval_strategy='steps',
-        eval_steps=20,
+        eval_steps=EVAL_STEPS,
         save_strategy='steps',
-        save_steps=20,
+        save_steps=SAVE_STEPS,
         save_total_limit=2,
         load_best_model_at_end=True,
         metric_for_best_model='eval_loss',
@@ -279,24 +171,29 @@ if RUN_FULL_TRAINING:
         args=args,
         train_dataset=train_tokenized,
         eval_dataset=eval_tokenized,
-        data_collator=DataCollatorForSeq2Seq(tokenizer=tokenizer, padding=True,
-                                             label_pad_token_id=-100,
-                                             pad_to_multiple_of=8),
+        data_collator=DataCollatorForSeq2Seq(
+            tokenizer=tokenizer,
+            padding=True,
+            label_pad_token_id=-100,
+            pad_to_multiple_of=8,
+        ),
         processing_class=tokenizer,
-        callbacks=[EarlyStoppingCallback(early_stopping_patience=3,
-                                         early_stopping_threshold=5e-4)],
+        callbacks=[EarlyStoppingCallback(
+            early_stopping_patience=EARLY_STOPPING_PATIENCE,
+            early_stopping_threshold=EARLY_STOPPING_THRESHOLD,
+        )],
     )
     trainer.train()
     trainer.evaluate()
     trainer.save_model(adapter_dir)
-    tokenizer.save_pretrained(adapter_dir)"""
+    tokenizer.save_pretrained(adapter_dir)
+"""
 
-eval_code = """# Evaluation logic used for both the 30-question screen and 100-question confirmation.
-# Strict accuracy requires the model to place the final answer inside <answer> tags.
-# Loose accuracy extracts the last number from the whole trace, even if tags are missing.
-import re
-
-SYSTEM_INSTRUCTION = \"\"\"You are a meticulous reasoning tutor.
+scoring_code = r"""
+# Evaluation/scoring code used in the screen and confirmation.
+# Strict accuracy requires the final answer inside <answer>; loose accuracy
+# extracts the last number from the whole trace even if tags are missing.
+SYSTEM_INSTRUCTION = '''You are a meticulous reasoning tutor.
 For every problem, answer using EXACTLY these tags in order:
 <thinking>
 Reason step by step. Show every intermediate calculation.
@@ -306,53 +203,265 @@ Re-check your reasoning. Look for arithmetic slips or wrong assumptions.
 </reflection>
 <answer>
 Give only the final answer.
-</answer>\"\"\"
+</answer>'''
 
-def extract_tag(text: str, tag: str) -> str:
-    match = re.search(fr'<{tag}>(.*?)</{tag}>', text, re.DOTALL | re.IGNORECASE)
-    return match.group(1).strip() if match else ''
+print(score_trace('<thinking>x</thinking><reflection>ok</reflection><answer>42</answer>', '42'))
+"""
 
-def normalize_number(text: str) -> str:
-    numbers = re.findall(r'-?\\d+(?:\\.\\d+)?', str(text).replace(',', '').replace('$', ''))
-    if not numbers:
-        return ''
-    value = float(numbers[-1])
-    return str(int(value)) if value.is_integer() else str(value)
+screen_recompute_code = r"""
+# Recompute the screen table from raw artifacts and raw prediction JSONLs.
+# This is not just displaying a pre-made image: we parse predictions again here.
+rows = []
+for run in RUNS:
+    run_dir = ART / run
+    cfg = load_json(run_dir / 'config.json')
+    train = load_json(run_dir / 'training_summary.json')
+    params = load_json(run_dir / 'parameter_stats.json')
+    tokens = load_json(run_dir / 'tokenization_stats.json')
+    predictions = load_jsonl(run_dir / 'raw' / 'adapter_predictions.jsonl')
 
-def score_trace(trace: str, gold: str) -> dict:
-    thinking = extract_tag(trace, 'thinking')
-    reflection = extract_tag(trace, 'reflection')
-    answer = extract_tag(trace, 'answer')
-    strict_prediction = normalize_number(answer)
-    loose_prediction = strict_prediction or normalize_number(trace)
-    return {
-        'valid_format': bool(thinking and reflection and answer),
-        'has_reflection': bool(reflection),
-        'strict_correct': strict_prediction == gold,
-        'loose_correct': loose_prediction == gold,
-    }"""
+    strict_scores = []
+    loose_scores = []
+    format_scores = []
+    for row in predictions:
+        trace = row.get('greedy_trace', row.get('trace', ''))
+        scored = score_trace(trace, row['gold_answer'])
+        strict_scores.append(scored['strict_correct'])
+        loose_scores.append(scored['loose_correct'])
+        format_scores.append(scored['valid_format'])
+
+    rows.append({
+        'run': run,
+        'rank': cfg['lora_r'],
+        'alpha': cfg['lora_alpha'],
+        'lr': cfg['learning_rate'],
+        'train_batch': cfg['train_batch_size'],
+        'grad_accum': cfg['gradient_accumulation_steps'],
+        'effective_batch': cfg['train_batch_size'] * cfg['gradient_accumulation_steps'],
+        'trainable_params_m': params['trainable_parameters'] / 1e6,
+        'truncation_rate': tokens['train']['truncated_fraction'],
+        'eval_loss': train['eval_loss'],
+        'train_minutes': train['train_wall_time_seconds'] / 60,
+        'max_gpu_gib': train['max_gpu_memory_allocated_gib'],
+        'strict_accuracy_30': np.mean(strict_scores),
+        'loose_accuracy_30': np.mean(loose_scores),
+        'format_rate_30': np.mean(format_scores),
+    })
+
+screen_df = pd.DataFrame(rows).sort_values('strict_accuracy_30', ascending=False)
+display(screen_df)
+leader = screen_df.iloc[0]
+print('Selected leader:', leader['run'])
+"""
+
+screen_plot_code = r"""
+# Generate charts live from screen_df.
+labels = [name.replace('qwen15_', '').replace('_e3_es', '') for name in screen_df['run']]
+x = np.arange(len(screen_df))
+
+fig, ax = plt.subplots(figsize=(10, 4.8))
+ax.bar(x - 0.2, 100 * screen_df['strict_accuracy_30'], width=0.4, label='strict tagged')
+ax.bar(x + 0.2, 100 * screen_df['loose_accuracy_30'], width=0.4, label='loose numeric')
+ax.set_xticks(x)
+ax.set_xticklabels(labels, rotation=20, ha='right')
+ax.set_ylabel('Accuracy on 30-question screen (%)')
+ax.set_title('Qwen2.5-1.5B screen accuracy generated from raw predictions')
+ax.legend()
+plt.tight_layout()
+plt.show()
+
+fig, ax = plt.subplots(figsize=(7, 4.8))
+ax.scatter(screen_df['eval_loss'], 100 * screen_df['strict_accuracy_30'], s=100)
+for _, row in screen_df.iterrows():
+    ax.annotate(f"r{int(row['rank'])}, lr={row['lr']:.0e}",
+                (row['eval_loss'], 100 * row['strict_accuracy_30']),
+                xytext=(6, 5), textcoords='offset points')
+ax.set_xlabel('Validation loss')
+ax.set_ylabel('Strict screen accuracy (%)')
+ax.set_title('Why validation loss alone was not enough')
+plt.tight_layout()
+plt.show()
+"""
+
+training_curves_code = r"""
+# Generate validation curves live from Trainer log history.
+fig, ax = plt.subplots(figsize=(10, 5))
+for run in RUNS:
+    history = pd.read_json(ART / run / 'raw' / 'trainer_log_history.json')
+    eval_history = history.dropna(subset=['eval_loss'])
+    ax.plot(eval_history['step'], eval_history['eval_loss'], marker='o', label=run.replace('qwen15_', ''))
+ax.set_xlabel('Optimizer step')
+ax.set_ylabel('Validation loss')
+ax.set_title('Validation loss during training')
+ax.legend(fontsize=8)
+plt.tight_layout()
+plt.show()
+
+print('OOM evidence from failed speed attempts:')
+for oom_dir in sorted(ART.glob('oom_*')):
+    record = oom_dir / 'OOM_RECORD.md'
+    if record.exists():
+        print(f'\n--- {oom_dir.name} ---')
+        print(record.read_text())
+"""
+
+confirm_recompute_code = r"""
+# Recompute the 100-question confirmation from raw base/adapter prediction JSONLs.
+base_records = load_jsonl(CONFIRM_DIR / 'base_predictions.jsonl')
+adapter_records = load_jsonl(CONFIRM_DIR / 'adapter_predictions.jsonl')
+
+summary_rows = []
+for mode, records in [('base', base_records), ('adapter', adapter_records)]:
+    strict = []
+    loose = []
+    fmt = []
+    reflection = []
+    for row in records:
+        scored = score_trace(row['trace'], row['gold_answer'])
+        strict.append(scored['strict_correct'])
+        loose.append(scored['loose_correct'])
+        fmt.append(scored['valid_format'])
+        reflection.append(scored['has_reflection'])
+    summary_rows.append({
+        'mode': mode,
+        'strict_accuracy': np.mean(strict),
+        'loose_accuracy': np.mean(loose),
+        'valid_format_rate': np.mean(fmt),
+        'reflection_rate': np.mean(reflection),
+        'n': len(records),
+    })
+confirm_df = pd.DataFrame(summary_rows)
+display(confirm_df)
+print('Raw rows:', len(base_records), 'base and', len(adapter_records), 'adapter')
+"""
+
+confirm_plot_code = r"""
+# Generate confirmation charts live from confirm_df.
+fig, ax = plt.subplots(figsize=(7, 4.8))
+x = np.arange(2)
+base = confirm_df[confirm_df['mode'] == 'base'].iloc[0]
+adapter = confirm_df[confirm_df['mode'] == 'adapter'].iloc[0]
+ax.bar(x - 0.18, [100 * base['strict_accuracy'], 100 * base['loose_accuracy']], width=0.36, label='base')
+ax.bar(x + 0.18, [100 * adapter['strict_accuracy'], 100 * adapter['loose_accuracy']], width=0.36, label='adapter')
+ax.set_xticks(x)
+ax.set_xticklabels(['Strict tagged', 'Loose numeric'])
+ax.set_ylabel('Accuracy on 100-question confirmation (%)')
+ax.set_title('Leader confirmation generated from raw predictions')
+ax.legend()
+plt.tight_layout()
+plt.show()
+
+fig, ax = plt.subplots(figsize=(6, 4.5))
+ax.bar(['base', 'adapter'], [100 * base['valid_format_rate'], 100 * adapter['valid_format_rate']])
+ax.set_ylabel('Valid required format (%)')
+ax.set_title('Format compliance from raw traces')
+plt.tight_layout()
+plt.show()
+"""
+
+live_inference_code = r"""
+# Tiny live inference demo with the saved adapter.
+# This runs on the cloud GPU when CUDA is available; otherwise it falls back gracefully.
+RUN_LIVE_INFERENCE = True
+
+if RUN_LIVE_INFERENCE:
+    try:
+        import torch
+        if not torch.cuda.is_available():
+            print('CUDA is not available, so live inference is skipped in this environment.')
+        else:
+            from datasets import load_dataset
+            from peft import PeftModel
+            from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+            MODEL_ID = 'Qwen/Qwen2.5-1.5B-Instruct'
+            ADAPTER_DIR = ART / LEADER_RUN / 'adapter'
+            indices = load_json(CONFIRM_DIR / 'gsm8k_test_indices.json')
+            example_index = indices[0]
+            example = load_dataset('openai/gsm8k', 'main', split='test').select([example_index])[0]
+            gold = normalize_number(example['answer'].split('####')[-1])
+
+            tokenizer = AutoTokenizer.from_pretrained(ADAPTER_DIR)
+            if tokenizer.pad_token_id is None:
+                tokenizer.pad_token = tokenizer.eos_token
+
+            quantization = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_quant_type='nf4',
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_compute_dtype=torch.bfloat16,
+            )
+            base_model = AutoModelForCausalLM.from_pretrained(
+                MODEL_ID,
+                quantization_config=quantization,
+                device_map={'': 0},
+                torch_dtype=torch.bfloat16,
+            )
+            model = PeftModel.from_pretrained(base_model, ADAPTER_DIR)
+            model.eval()
+
+            messages = [
+                {'role': 'system', 'content': SYSTEM_INSTRUCTION},
+                {'role': 'user', 'content': example['question']},
+            ]
+            encoded = tokenizer.apply_chat_template(
+                messages,
+                add_generation_prompt=True,
+                return_tensors='pt',
+                return_dict=True,
+            ).to(model.device)
+
+            with torch.inference_mode():
+                output = model.generate(
+                    **encoded,
+                    do_sample=False,
+                    max_new_tokens=768,
+                    pad_token_id=tokenizer.pad_token_id,
+                    eos_token_id=tokenizer.eos_token_id,
+                )
+            trace = tokenizer.decode(output[0, encoded['input_ids'].shape[1]:], skip_special_tokens=True)
+            scored = score_trace(trace, gold)
+
+            print('Question:')
+            print(example['question'])
+            print('\nGold answer:', gold)
+            print('\nGenerated adapter trace:')
+            print(trace)
+            print('\nParsed score:')
+            print(json.dumps(scored, indent=2))
+
+            del model, base_model
+            torch.cuda.empty_cache()
+    except Exception as exc:
+        print('Live inference skipped because this environment could not run it:')
+        print(type(exc).__name__, exc)
+"""
 
 nb = nbf.v4.new_notebook()
 nb.cells = [
-    nbf.v4.new_markdown_cell("# Qwen2.5-1.5B DeepReasoning ablation\n\nThis executed notebook is the presentation artifact. It shows the training/evaluation code path, but loads saved cloud artifacts so the notebook is fast and reproducible during class."),
+    nbf.v4.new_markdown_cell("# Qwen2.5-1.5B DeepReasoning ablation\n\nThis is the presentation notebook. It shows the training/evaluation code, recomputes metrics and charts from saved artifacts, and runs a tiny live adapter inference demo when CUDA is available."),
     nbf.v4.new_code_cell(setup_code),
-    nbf.v4.new_markdown_cell("## 1. Research question and conclusion\n\nWe switched from Qwen2.5-3B to Qwen2.5-1.5B because the 3B model was strong enough that the dataset was less revealing. The adapter learns the required reasoning format, but does not improve loose final-answer accuracy over the base model."),
-    nbf.v4.new_code_cell("display(Markdown(report_md))"),
-    nbf.v4.new_markdown_cell("## 2. Training configuration we actually used\n\nThe next cells show the training setup. `RUN_FULL_TRAINING` is deliberately `False`: the heavy training already ran on the RTX PRO 6000 and the notebook loads those saved artifacts."),
+    nbf.v4.new_markdown_cell("## 1. Research question and conclusion"),
+    nbf.v4.new_code_cell("display(Markdown((ART / 'QWEN15B_PRESENTATION_REPORT.md').read_text()))"),
+    nbf.v4.new_markdown_cell("## 2. Training configuration\n\nThis is the actual configuration family. Full training is disabled here so the notebook remains safe to present."),
     nbf.v4.new_code_cell(training_config_code),
-    nbf.v4.new_markdown_cell("## 3. Core QLoRA training code\n\nThis is the implementation: 4-bit NF4 loading, LoRA target modules, Trainer settings, early stopping, and adapter saving."),
-    nbf.v4.new_code_cell(lora_training_code),
-    nbf.v4.new_markdown_cell("## 4. Evaluation code and why there are two metrics\n\nStrict accuracy asks whether the model obeyed the required format. Loose accuracy asks whether the final numeric answer can be recovered anywhere in the trace."),
-    nbf.v4.new_code_cell(eval_code),
-    nbf.v4.new_markdown_cell("## 5. Hyperparameter grid and saved training artifacts\n\nThis table is loaded from artifacts, not recomputed. It is the evidence used to select the leader."),
-    nbf.v4.new_code_cell("cols = ['run', 'rank', 'alpha', 'lr', 'train_batch', 'grad_accum', 'effective_batch', 'eval_loss', 'strict_accuracy_30', 'loose_accuracy_30', 'format_rate_30', 'train_minutes', 'max_gpu_gib']\ndisplay(df[cols])"),
-    nbf.v4.new_markdown_cell("## 6. Charts: screen accuracy and loss/accuracy relationship\n\nThe r=16 adapter had the best validation loss but worse strict accuracy. That is why the final choice uses held-out generation behavior, not validation loss alone."),
-    nbf.v4.new_code_cell("display(Image(filename=str(ART / 'presentation_plots' / 'screen_accuracy.png')))\ndisplay(Image(filename=str(ART / 'presentation_plots' / 'loss_vs_accuracy.png')))"),
-    nbf.v4.new_markdown_cell("## 7. Training stability and runtime choices\n\nBatch 32 and batch 16 OOMed; batch 8 with grad accumulation 4 was stable and preserved effective batch size 32."),
-    nbf.v4.new_code_cell("display(Image(filename=str(ART / 'presentation_plots' / 'validation_curves.png')))\nfor oom_dir in sorted(ART.glob('oom_*')):\n    record = oom_dir / 'OOM_RECORD.md'\n    if record.exists():\n        print(f'--- {oom_dir.name} ---')\n        print(record.read_text())"),
-    nbf.v4.new_markdown_cell("## 8. 100-question confirmation\n\nAfter the 30-question screen, only the leader was confirmed on 100 questions without retraining."),
-    nbf.v4.new_code_cell("display(Image(filename=str(ART / 'presentation_plots' / 'confirm_accuracy.png')))\ndisplay(Image(filename=str(ART / 'presentation_plots' / 'confirm_format_rate.png')))\nprint(json.dumps(confirm, indent=2))"),
-    nbf.v4.new_markdown_cell("## 9. Final takeaway\n\nUse `qwen15_len1024_r8_a16_lr5e5_e3_es` if structured reasoning traces are required. If the only objective is loose GSM8K numeric answer accuracy, the base 1.5B model is still slightly better. The experiment demonstrates a format-following gain with a raw-answer tradeoff."),
+    nbf.v4.new_markdown_cell("## 3. Core QLoRA training code"),
+    nbf.v4.new_code_cell(training_code),
+    nbf.v4.new_markdown_cell("## 4. Evaluation/scoring code"),
+    nbf.v4.new_code_cell(scoring_code),
+    nbf.v4.new_markdown_cell("## 5. Recompute the 30-question screen from raw predictions"),
+    nbf.v4.new_code_cell(screen_recompute_code),
+    nbf.v4.new_markdown_cell("## 6. Generate screen charts from recomputed data"),
+    nbf.v4.new_code_cell(screen_plot_code),
+    nbf.v4.new_markdown_cell("## 7. Training curves and OOM/runtime evidence"),
+    nbf.v4.new_code_cell(training_curves_code),
+    nbf.v4.new_markdown_cell("## 8. Recompute 100-question confirmation from raw predictions"),
+    nbf.v4.new_code_cell(confirm_recompute_code),
+    nbf.v4.new_markdown_cell("## 9. Generate confirmation charts from recomputed data"),
+    nbf.v4.new_code_cell(confirm_plot_code),
+    nbf.v4.new_markdown_cell("## 10. Tiny live inference demo with the saved adapter"),
+    nbf.v4.new_code_cell(live_inference_code),
+    nbf.v4.new_markdown_cell("## 11. Final takeaway\n\nThe adapter is best when structured reasoning format is required. The base model remains slightly better on loose final numeric answer accuracy. This is the core tradeoff shown by the ablation."),
 ]
-nbf.write(nb, ROOT / "qwen15b_presentation.ipynb")
-print(report)
+nbf.write(nb, ROOT / 'qwen15b_presentation.ipynb')
+print('Wrote qwen15b_presentation.ipynb with', len(nb.cells), 'cells')
